@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MK MARKET - Tout pour le développement de l'Afrique</title>
+  <meta name="theme-color" content="#008751">
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 text-gray-900 font-sans min-h-screen flex flex-col">
+
+  <!-- BANDEAU OFFICIEL -->
+  <div class="bg-[#00663D] text-white px-3 py-1.5 text-xs">
+    <div class="max-w-6xl mx-auto flex justify-between items-center flex-wrap gap-2">
+      <div class="flex items-center space-x-1.5">
+        <span class="w-2 h-2 rounded-full bg-[#FFC72C] animate-pulse"></span>
+        <span id="txt-motto" class="font-medium text-[11px]">Tout pour le développement de l'Afrique.</span>
+      </div>
+      <div class="flex items-center space-x-2">
+        <div class="bg-black/30 rounded px-1.5 py-0.5 flex space-x-1 font-bold text-[10px]">
+          <button id="btn-usd" onclick="setCurrency('USD')" class="px-1 rounded bg-[#FFC72C] text-black">USD ($)</button>
+          <button id="btn-cdf" onclick="setCurrency('CDF')" class="px-1 rounded text-white">CDF (FC)</button>
+        </div>
+        <select id="lang-select" onchange="changeLanguage(this.value)" class="bg-black/30 text-white rounded px-1 py-0.5 text-[11px] font-semibold border-none focus:outline-none">
+          <option value="fr">🇫🇷 Français</option>
+          <option value="en">🇬🇧 English</option>
+          <option value="ln">🇨🇩 Lingála</option>
+          <option value="sw">🇹🇿 Kiswahili</option>
+          <option value="lu">🇨🇩 Tshiluba</option>
+          <option value="kg">🇨🇩 Kikongo</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <!-- NAVIGATION -->
+  <header class="bg-white border-b border-gray-200 sticky top-0 z-30 shadow-sm">
+    <div class="max-w-6xl mx-auto px-4 py-2.5 flex items-center justify-between gap-3">
+      <div class="flex items-center space-x-2 cursor-pointer" onclick="showTab('market')">
+        <div class="w-9 h-9 bg-[#008751] rounded-lg flex items-center justify-center text-[#FFC72C] font-black text-lg shadow">
+          MK
+        </div>
+        <div>
+          <span class="text-xl font-black tracking-tight text-gray-900 block leading-tight">MK MARKET</span>
+          <span class="text-[8px] uppercase tracking-widest text-[#008751] font-bold block">RDC • AFRIQUE</span>
+        </div>
+      </div>
+
+      <div class="flex items-center space-x-1.5 text-xs font-bold">
+        <button id="tab-market" onclick="showTab('market')" class="px-2.5 py-1.5 rounded-lg bg-[#008751] text-white">Marketplace</button>
+        <button id="tab-seller" onclick="showTab('seller')" class="px-2.5 py-1.5 rounded-lg text-gray-700 bg-gray-100">Vendeur</button>
+        <button id="tab-admin" onclick="showTab('admin')" class="px-2.5 py-1.5 rounded-lg text-red-700 bg-red-50">Admin</button>
+        <div class="relative p-1.5 bg-gray-100 rounded-lg">
+          🛒<span id="cart-badge" class="absolute -top-1 -right-1 bg-[#008751] text-white text-[9px] font-black w-4 h-4 rounded-full flex items-center justify-center">0</span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- CONTENU -->
+  <main class="max-w-6xl w-full mx-auto p-4 flex-1">
+
+    <!-- 1. MARKETPLACE -->
+    <div id="view-market" class="space-y-6">
+      <div class="bg-gradient-to-r from-[#008751] to-[#00663D] text-white p-5 rounded-2xl shadow-md">
+        <span class="bg-[#FFC72C] text-gray-950 text-[10px] font-black px-2.5 py-0.5 rounded-full uppercase">Lancement Officiel RDC</span>
+        <h1 class="text-xl md:text-3xl font-black mt-2">Achetez et vendez facilement en Afrique</h1>
+        <p class="text-xs text-green-100 mt-1">Tous les commerçants, entreprises et particuliers sur une seule plateforme.</p>
+        <button onclick="showTab('seller')" class="mt-3 bg-[#FFC72C] text-gray-950 font-bold px-4 py-2 rounded-lg text-xs shadow">
+          Ouvrir ma boutique (1 $/mois)
+        </button>
+      </div>
+
+      <div class="flex justify-between items-center">
+        <h2 id="txt-catalog" class="text-base font-extrabold text-gray-900">Tous les produits disponibles</h2>
+        <span class="text-[10px] text-gray-500 font-semibold">Taux : 1$ = 2800 FC</span>
+      </div>
+
+      <div id="products-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4"></div>
+
+      <div class="bg-amber-50 border border-amber-200 rounded-xl p-3 flex items-center space-x-2.5">
+        <span class="text-xl">🚚</span>
+        <p id="txt-delivery" class="text-xs text-amber-900">
+          <strong>Livraison directe :</strong> Chaque vendeur assure lui-même la livraison de ses produits à l'acheteur.
+        </p>
+      </div>
+    </div>
+
+    <!-- 2. VENDEUR -->
+    <div id="view-seller" class="hidden space-y-5">
+      <div class="bg-white border border-gray-200 rounded-xl p-5 shadow-sm">
+        <h2 class="text-lg font-black text-gray-900">Espace Vendeur MK MARKET</h2>
+        <div class="my-4 bg-yellow-50 border-2 border-[#FFC72C] rounded-xl p-3.5">
+          <h4 class="font-extrabold text-xs text-gray-900">Tarification de Lancement</h4>
+          <p class="text-xs text-gray-700 mt-1">
+            <strong>Mois 1 à 3 :</strong> 1 dollar / mois.<br>
+            <strong>À partir du 4e mois :</strong> 15 dollars / mois.
+          </p>
+          <div class="mt-3 flex items-center justify-between">
+            <span class="text-xs font-bold text-[#008751]">Votre statut : Mois 1 (1,00 $)</span>
+            <button onclick="alert('Connexion sécurisée M-Pesa / Airtel / Orange Money initiée !')" class="bg-[#008751] text-white px-3 py-1.5 rounded-lg text-xs font-bold shadow">
+              Payer l'abonnement
+            </button>
+          </div>
+        </div>
+
+        <h3 class="font-bold text-sm text-gray-900 mt-4 mb-2">Ajouter un produit en vente</h3>
+        <form onsubmit="addProduct(event)" class="space-y-3 bg-gray-50 p-3.5 rounded-xl border border-gray-200 text-xs">
+          <div>
+            <label class="block font-semibold mb-1">Nom du produit</label>
+            <input id="prod-name" type="text" required placeholder="Ex: Sac de Riz 25kg, Téléphone..." class="w-full p-2 border rounded bg-white">
+          </div>
+          <div>
+            <label class="block font-semibold mb-1">Prix en USD ($)</label>
+            <input id="prod-price" type="number" step="0.01" required placeholder="Ex: 25" class="w-full p-2 border rounded bg-white">
+          </div>
+          <div>
+            <label class="block font-semibold mb-1">Numéro de contact</label>
+            <input id="prod-phone" type="tel" required placeholder="+243..." class="w-full p-2 border rounded bg-white">
+          </div>
+          <button type="submit" class="w-full bg-[#008751] text-white font-bold py-2 rounded-lg shadow">
+            Mettre en vente sur MK MARKET
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <!-- 3. ADMIN (JIRES MUKUNDI) -->
+    <div id="view-admin" class="hidden space-y-5">
+      <div class="bg-red-800 text-white p-5 rounded-xl shadow-md flex justify-between items-center">
+        <div>
+          <span class="text-[9px] font-black uppercase bg-red-950 px-2 py-0.5 rounded">Console Propriétaire</span>
+          <h2 class="text-lg font-black mt-1">Tableau de Bord Administrateur</h2>
+          <p class="text-xs text-red-200">mukundijires@gmail.com</p>
+        </div>
+        <div class="text-right">
+          <span class="text-[10px] text-red-200 block">Revenus Abonnements</span>
+          <span class="text-xl font-black text-[#FFC72C]">$ 1,480.00</span>
+        </div>
+      </div>
+
+      <div class="bg-white border border-gray-200 rounded-xl p-4 shadow-sm">
+        <h3 class="font-extrabold text-sm mb-3">Modération des Boutiques</h3>
+        <div id="shops-list" class="space-y-2 text-xs"></div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="bg-gray-950 text-gray-300 text-xs py-6 mt-8 border-t border-gray-800">
+    <div class="max-w-6xl mx-auto px-4 text-center space-y-2">
+      <div class="flex items-center justify-center space-x-2">
+        <div class="w-6 h-6 bg-[#008751] text-[#FFC72C] font-black rounded flex items-center justify-center text-xs">MK</div>
+        <span class="font-black text-white text-sm">MK MARKET</span>
+      </div>
+      <p id="txt-footer-motto" class="text-gray-400">« Tout pour le développement de l'Afrique. »</p>
+      <p class="text-gray-500 text-[11px]">
+        Contact propriétaire : <strong class="text-[#FFC72C]">mukundijires@gmail.com</strong> • RDC
+      </p>
+      <p class="text-gray-600 text-[10px] pt-2">© 2026 MK MARKET. Tous droits réservés.</p>
+    </div>
+  </footer>
+
+  <script>
+    let currentCurrency = 'USD';
+    const rate = 2800;
+    let cart = 0;
+
+    const dict = {
+      fr: { motto: "Tout pour le développement de l'Afrique.", catalog: "Tous les produits disponibles", delivery: "Livraison directe : Chaque vendeur assure lui-même la livraison de ses produits." },
+      en: { motto: "All for the development of Africa.", catalog: "All available products", delivery: "Direct delivery: Each seller handles delivery." },
+      ln: { motto: "Nyonso mpo na botomboli ya Afrika.", catalog: "Biloko nyonso ezali mpo na kosomba", delivery: "Motindeli : Moteki moko nde akotindela yo biloko." },
+      sw: { motto: "Yote kwa ajili ya maendeleo ya Afrika.", catalog: "Bidhaa zote zilizopo", delivery: "Utoaji : Kila muuzaji anahusika kusafirisha bidhaa zake." },
+      lu: { motto: "Bionso bua didiunda dia Afrike.", catalog: "Bintu bionso bidi bua kusumba", delivery: "Difila dia bintu : Mupanyi nkayende ke ufikisha bintu biebe." },
+      kg: { motto: "Bima nionso sambu na kutomisa Afrika.", catalog: "Bima nionso kele samu na kusumba", delivery: "Kutinda bima : Mutekisi mosi mpenza ke nata bima." }
+    };
+
+    let products = [
+      { id: 1, name: "Groupe Électrogène 5kVA", price: 650, shop: "Kinshasa Tech", phone: "+243810000001", cat: "Équipement" },
+      { id: 2, name: "Lot Pagnes Wax Authentiques", price: 45, shop: "Lubumbashi Mode", phone: "+243990000002", cat: "Mode" },
+      { id: 3, name: "Café Pur Arabica Kivu (5kg)", price: 35, shop: "Goma Agro", phone: "+243820000003", cat: "Alimentation" }
+    ];
+
+    let shops = [
+      { id: 1, name: "Kinshasa Tech", phone: "+243810000001", status: "APPROUVÉ", fee: 1 },
+      { id: 2, name: "Lubumbashi Mode", phone: "+243990000002", status: "EN ATTENTE", fee: 1 },
+      { id: 3, name: "Goma Agro", phone: "+243820000003", status: "SUSPENDU", fee: 15 }
+    ];
+
+    function renderProducts() {
+      document.getElementById('products-grid').innerHTML = products.map(p => `
+        <div class="bg-white border border-gray-200 rounded-xl p-4 shadow-sm flex flex-col justify-between">
+          <div>
+            <span class="text-[9px] uppercase font-extrabold bg-green-50 text-[#008751] px-2 py-0.5 rounded">${p.cat}</span>
+            <h3 class="font-bold text-sm mt-2 text-gray-900">${p.name}</h3>
+            <p class="text-[11px] text-gray-500 mt-0.5">Boutique : ${p.shop}</p>
+          </div>
+          <div class="mt-4 pt-2 border-t border-gray-100 flex items-center justify-between">
+            <span class="text-xs font-black text-[#008751]">
+              ${currentCurrency === 'USD' ? '$' + p.price.toFixed(2) : (p.price * rate).toLocaleString() + ' FC'}
+            </span>
+            <div class="flex space-x-1.5">
+              <a href="tel:${p.phone}" class="px-2.5 py-1 bg-gray-100 rounded text-[11px] font-bold text-gray-800">📞 Appeler</a>
+              <button onclick="cart++; document.getElementById('cart-badge').innerText=cart;" class="px-2.5 py-1 bg-[#008751] text-white rounded text-[11px] font-bold">Ajouter</button>
+            </div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function renderShops() {
+      document.getElementById('shops-list').innerHTML = shops.map(s => `
+        <div class="flex justify-between items-center p-2.5 bg-gray-50 rounded-lg border border-gray-200">
+          <div>
+            <strong class="text-gray-900">${s.name}</strong> (${s.phone})
+            <span class="block text-[10px] text-gray-500">Abonnement : $${s.fee}/mois • Statut : <strong>${s.status}</strong></span>
+          </div>
+          <div class="space-x-1">
+            ${s.status === 'EN ATTENTE' ? `<button onclick="s.status='APPROUVÉ'; renderShops();" class="px-2 py-1 bg-[#008751] text-white rounded font-bold text-[10px]">Approuver</button>` : ''}
+            ${s.status === 'APPROUVÉ' ? `<button onclick="s.status='SUSPENDU'; renderShops();" class="px-2 py-1 bg-red-600 text-white rounded font-bold text-[10px]">Suspendre</button>` : ''}
+            ${s.status === 'SUSPENDU' ? `<button onclick="s.status='APPROUVÉ'; renderShops();" class="px-2 py-1 bg-blue-600 text-white rounded font-bold text-[10px]">Réactiver</button>` : ''}
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function setCurrency(curr) {
+      currentCurrency = curr;
+      document.getElementById('btn-usd').className = curr === 'USD' ? 'px-1 rounded bg-[#FFC72C] text-black' : 'px-1 rounded text-white';
+      document.getElementById('btn-cdf').className = curr === 'CDF' ? 'px-1 rounded bg-[#FFC72C] text-black' : 'px-1 rounded text-white';
+      renderProducts();
+    }
+
+    function changeLanguage(langKey) {
+      const l = dict[langKey];
+      if (l) {
+        document.getElementById('txt-motto').innerText = l.motto;
+        document.getElementById('txt-footer-motto').innerText = '« ' + l.motto + ' »';
+        document.getElementById('txt-catalog').innerText = l.catalog;
+        document.getElementById('txt-delivery').innerHTML = '<strong>Livraison directe :</strong> ' + l.delivery;
+      }
+    }
+
+    function showTab(tab) {
+      ['market', 'seller', 'admin'].forEach(t => {
+        document.getElementById('view-' + t).classList.add('hidden');
+        document.getElementById('tab-' + t).className = 'px-2.5 py-1.5 rounded-lg text-gray-700 bg-gray-100';
+      });
+      document.getElementById('view-' + tab).classList.remove('hidden');
+      if (tab === 'market') document.getElementById('tab-market').className = 'px-2.5 py-1.5 rounded-lg bg-[#008751] text-white';
+      if (tab === 'seller') document.getElementById('tab-seller').className = 'px-2.5 py-1.5 rounded-lg bg-[#FFC72C] text-gray-950 font-black';
+      if (tab === 'admin') {
+        document.getElementById('tab-admin').className = 'px-2.5 py-1.5 rounded-lg bg-red-700 text-white font-black';
+        renderShops();
+      }
+    }
+
+    function addProduct(e) {
+      e.preventDefault();
+      const name = document.getElementById('prod-name').value;
+      const price = parseFloat(document.getElementById('prod-price').value);
+      const phone = document.getElementById('prod-phone').value;
+      products.unshift({ id: Date.now(), name, price, shop: "Ma Boutique", phone, cat: "Général" });
+      alert("Produit mis en vente avec succès sur MK MARKET !");
+      e.target.reset();
+      showTab('market');
+      renderProducts();
+    }
+
+    renderProducts();
+  </script>
+</body>
+          </html>
