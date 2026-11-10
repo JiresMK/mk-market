@@ -5,25 +5,148 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>MK MARKET - Tout pour le développement de l'Afrique</title>
   <meta name="theme-color" content="#008751">
-  <script src="https://cdn.tailwindcss.com"></script>
-</head>
-<body class="bg-gray-50 text-gray-900 font-sans min-h-screen flex flex-col">
+  
+  <style>
+    /* STYLES RAPIDES SANS DÉPENDANCE EXTÉRIEURE */
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, sans-serif; }
+    body { background-color: #f8f9fa; color: #1a1a1a; min-height: 100vh; display: flex; flex-direction: column; }
+    
+    .bg-green-main { background-color: #008751; }
+    .bg-green-dark { background-color: #00663d; }
+    .bg-yellow-main { background-color: #ffc72c; }
+    .text-green-main { color: #008751; }
+    
+    .container { max-width: 1100px; margin: 0 auto; padding: 0 16px; width: 100%; }
+    
+    /* Boutons & Cartes */
+    .btn { display: inline-block; font-weight: 700; padding: 8px 14px; border-radius: 8px; cursor: pointer; border: none; text-align: center; text-decoration: none; font-size: 13px; }
+    .btn-green { background-color: #008751; color: white; }
+    .btn-yellow { background-color: #ffc72c; color: #1a1a1a; }
+    .btn-admin { background-color: #dc2626; color: white; }
+    .btn-gray { background-color: #e5e7eb; color: #374151; }
+    
+    .card { background: white; border-radius: 12px; border: 1px solid #e5e7eb; padding: 16px; margin-bottom: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+    
+    /* Navigation */
+    .header-bar { background: white; border-bottom: 1px solid #e5e7eb; position: sticky; top: 0; z-index: 100; padding: 10px 0; }
+    .header-content { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+    .nav-tabs { display: flex; gap: 6px; align-items: center; }
+    
+    /* Grille Produits */
+    .products-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 16px; margin-top: 12px; }
+    .product-card { background: white; border: 1px solid #e5e7eb; border-radius: 12px; overflow: hidden; display: flex; flex-direction: column; cursor: pointer; }
+    .product-img { width: 100%; height: 160px; object-fit: cover; background-color: #f3f4f6; }
+    .product-info { padding: 12px; flex: 1; display: flex; flex-direction: column; justify-content: space-between; }
+    
+    /* Formulaire */
+    .form-group { margin-bottom: 12px; }
+    .form-group label { display: block; font-size: 12px; font-weight: 700; margin-bottom: 4px; color: #374151; }
+    .form-control { width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 8px; font-size: 13px; outline: none; background: #fff; }
+    .form-control:focus { border-color: #008751; }
+  </style>
 
-  <!-- BANDEAU HAUT (DEVISE + DEVISES + 6 LANGUES) -->
-  <div class="bg-[#00663D] text-white px-3 py-1.5 text-xs">
-    <div class="max-w-6xl mx-auto flex justify-between items-center flex-wrap gap-2">
-      <div class="flex items-center space-x-1.5">
-        <span class="w-2 h-2 rounded-full bg-[#FFC72C] animate-pulse"></span>
-        <span id="txt-motto" class="font-medium text-[11px]">Tout pour le développement de l'Afrique.</span>
+  <!-- CHARGEMENT PRIORITAIRE DES FONCTIONS POUR ÉVITER TOUT BLOCAGE -->
+  <script>
+    // Variables principales persistantes
+    let currentCurrency = 'USD';
+    let rate = parseInt(localStorage.getItem('mk_rate')) || 2850; // Ton taux sauvegardé
+    let cart = 0;
+    let tempImage = null;
+
+    const dict = {
+      fr: { motto: "Tout pour le développement de l'Afrique.", catalog: "Catalogue des produits" },
+      en: { motto: "All for the development of Africa.", catalog: "Products Catalog" },
+      ln: { motto: "Nyonso mpo na botomboli ya Afrika.", catalog: "Biloko nyonso ezali mpo na kosomba" },
+      sw: { motto: "Yote kwa ajili ya maendeleo ya Afrika.", catalog: "Bidhaa zote zilizopo" },
+      lu: { motto: "Bionso bua didiunda dia Afrike.", catalog: "Bintu bionso bidi bua kusumba" },
+      kg: { motto: "Bima nionso sambu na kutomisa Afrika.", catalog: "Bima nionso kele samu na kusumba" }
+    };
+
+    let products = [
+      { id: 1, name: "Groupe Électrogène Silencieux 5kVA", price: 650, shop: "Kinshasa Shopping", phone: "+243810000001", cat: "Équipement", image: "https://images.unsplash.com/photo-1581092160607-ee22621dd758?w=500&auto=format&fit=crop&q=60" },
+      { id: 2, name: "Lot de Pagnes Wax Authentiques (6 yards)", price: 45, shop: "Lubumbashi Mode", phone: "+243990000002", cat: "Mode", image: "https://images.unsplash.com/photo-1528459801416-a9e53bbf4e17?w=500&auto=format&fit=crop&q=60" },
+      { id: 3, name: "Café Pur Arabica Kivu (Sac de 5kg)", price: 35, shop: "Goma Agro", phone: "+243820000003", cat: "Alimentation", image: "https://images.unsplash.com/photo-1559056199-641a0ac8b55e?w=500&auto=format&fit=crop&q=60" }
+    ];
+
+    // FONCTION DE NAVIGATION IMMEDIATE
+    function showTab(tabName) {
+      document.getElementById('view-market').style.display = 'none';
+      document.getElementById('view-seller').style.display = 'none';
+      document.getElementById('view-admin').style.display = 'none';
+
+      document.getElementById('tab-market').className = 'btn btn-gray';
+      document.getElementById('tab-seller').className = 'btn btn-gray';
+      document.getElementById('tab-admin').className = 'btn btn-gray';
+
+      if (tabName === 'market') {
+        document.getElementById('view-market').style.display = 'block';
+        document.getElementById('tab-market').className = 'btn btn-green';
+      } else if (tabName === 'seller') {
+        document.getElementById('view-seller').style.display = 'block';
+        document.getElementById('tab-seller').className = 'btn btn-yellow';
+      } else if (tabName === 'admin') {
+        document.getElementById('view-admin').style.display = 'block';
+        document.getElementById('tab-admin').className = 'btn btn-admin';
+        document.getElementById('admin-rate-input').value = rate;
+      }
+      window.scrollTo(0, 0);
+    }
+
+    // FONCTION PROPRIETAIRE : MODIFICATION DU TAUX
+    function saveAdminRate() {
+      const inputVal = parseInt(document.getElementById('admin-rate-input').value);
+      if (inputVal && inputVal > 0) {
+        rate = inputVal;
+        localStorage.setItem('mk_rate', rate); // Sauvegardé pour toujours
+        updateAllRates();
+        alert("✅ SUCCÈS ! Vous avez mis à jour le taux à : 1 $ = " + rate + " FC sur tout le site !");
+        showTab('market');
+      } else {
+        alert("Veuillez entrer un taux valide (ex: 2850).");
+      }
+    }
+
+    function updateAllRates() {
+      document.getElementById('live-rate-badge').innerText = rate.toLocaleString() + ' FC';
+      document.getElementById('admin-rate-display').innerText = rate.toLocaleString() + ' FC';
+      renderProducts();
+    }
+
+    function setCurrency(curr) {
+      currentCurrency = curr;
+      document.getElementById('btn-usd').style.background = curr === 'USD' ? '#ffc72c' : 'rgba(0,0,0,0.2)';
+      document.getElementById('btn-usd').style.color = curr === 'USD' ? '#000' : '#fff';
+      document.getElementById('btn-cdf').style.background = curr === 'CDF' ? '#ffc72c' : 'rgba(0,0,0,0.2)';
+      document.getElementById('btn-cdf').style.color = curr === 'CDF' ? '#000' : '#fff';
+      renderProducts();
+    }
+
+    function changeLanguage(langKey) {
+      const l = dict[langKey];
+      if (l) {
+        document.getElementById('txt-motto').innerText = l.motto;
+        document.getElementById('txt-catalog').innerText = l.catalog;
+      }
+    }
+  </script>
+</head>
+<body>
+
+  <!-- BANDEAU SUPERIEUR -->
+  <div style="background-color: #00663d; color: white; padding: 6px 0; font-size: 11px;">
+    <div class="container" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 6px;">
+      <div style="display: flex; align-items: center; gap: 6px;">
+        <span style="width: 8px; height: 8px; border-radius: 50%; background: #ffc72c;"></span>
+        <span id="txt-motto" style="font-weight: 600;">Tout pour le développement de l'Afrique.</span>
       </div>
-      <div class="flex items-center space-x-2">
+      <div style="display: flex; align-items: center; gap: 8px;">
         <!-- Devises -->
-        <div class="bg-black/30 rounded px-1.5 py-0.5 flex space-x-1 font-bold text-[10px]">
-          <button id="btn-usd" onclick="setCurrency('USD')" class="px-1.5 py-0.5 rounded bg-[#FFC72C] text-black">USD ($)</button>
-          <button id="btn-cdf" onclick="setCurrency('CDF')" class="px-1.5 py-0.5 rounded text-white">CDF (FC)</button>
+        <div style="background: rgba(0,0,0,0.25); border-radius: 6px; padding: 2px;">
+          <button id="btn-usd" onclick="setCurrency('USD')" style="background: #ffc72c; color: #000; border: none; padding: 2px 6px; border-radius: 4px; font-weight: 700; font-size: 10px; cursor: pointer;">USD ($)</button>
+          <button id="btn-cdf" onclick="setCurrency('CDF')" style="background: transparent; color: #fff; border: none; padding: 2px 6px; border-radius: 4px; font-weight: 700; font-size: 10px; cursor: pointer;">CDF (FC)</button>
         </div>
         <!-- 6 Langues -->
-        <select id="lang-select" onchange="changeLanguage(this.value)" class="bg-black/30 text-white rounded px-1 py-0.5 text-[11px] font-semibold border-none focus:outline-none">
+        <select onchange="changeLanguage(this.value)" style="background: rgba(0,0,0,0.25); color: white; border: none; padding: 3px 6px; border-radius: 4px; font-size: 11px;">
           <option value="fr">🇫🇷 Français</option>
           <option value="en">🇬🇧 English</option>
           <option value="ln">🇨🇩 Lingála</option>
@@ -35,320 +158,184 @@
     </div>
   </div>
 
-  <!-- NAVIGATION -->
-  <header class="bg-white border-b border-gray-200 sticky top-0 z-30 shadow-sm">
-    <div class="max-w-6xl mx-auto px-4 py-2.5 flex items-center justify-between gap-2">
-      <div class="flex items-center space-x-2 cursor-pointer" onclick="showTab('market')">
-        <div class="w-9 h-9 bg-[#008751] rounded-lg flex items-center justify-center text-[#FFC72C] font-black text-lg shadow">
+  <!-- NAVIGATION OFFICIELLE -->
+  <div class="header-bar">
+    <div class="container header-content">
+      <!-- Logo -->
+      <div onclick="showTab('market')" style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+        <div style="width: 36px; height: 36px; background: #008751; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #ffc72c; font-weight: 900; font-size: 16px;">
           MK
         </div>
         <div>
-          <span class="text-xl font-black tracking-tight text-gray-900 block leading-tight">MK MARKET</span>
-          <span class="text-[8px] uppercase tracking-widest text-[#008751] font-bold block">RDC • AFRIQUE</span>
+          <strong style="font-size: 18px; color: #1a1a1a; display: block; line-height: 1;">MK MARKET</strong>
+          <span style="font-size: 8px; font-weight: 800; color: #008751; letter-spacing: 1px;">RDC • AFRIQUE</span>
         </div>
       </div>
 
-      <div class="flex items-center space-x-1 text-xs font-bold">
-        <button id="tab-market" onclick="showTab('market')" class="px-2.5 py-1.5 rounded-lg bg-[#008751] text-white">Marketplace</button>
-        <button id="tab-seller" onclick="showTab('seller')" class="px-2.5 py-1.5 rounded-lg text-gray-700 bg-gray-100">Ma Boutique</button>
-        <button id="tab-admin" onclick="showTab('admin')" class="px-2.5 py-1.5 rounded-lg text-red-700 bg-red-50">Admin</button>
-        <div onclick="showCart()" class="relative p-1.5 bg-gray-100 rounded-lg cursor-pointer">
-          🛒<span id="cart-badge" class="absolute -top-1 -right-1 bg-[#008751] text-white text-[9px] font-black w-4 h-4 rounded-full flex items-center justify-center">0</span>
+      <!-- Onglets Réactifs Garantis -->
+      <div class="nav-tabs">
+        <button id="tab-market" onclick="showTab('market')" class="btn btn-green">Marketplace</button>
+        <button id="tab-seller" onclick="showTab('seller')" class="btn btn-gray">Ma Boutique</button>
+        <button id="tab-admin" onclick="showTab('admin')" class="btn btn-gray" style="color: #dc2626;">Admin</button>
+        <div onclick="alert('Panier : ' + cart + ' article(s).')" style="background: #f3f4f6; padding: 6px 10px; border-radius: 8px; font-size: 14px; cursor: pointer; position: relative;">
+          🛒 <span id="cart-badge" style="position: absolute; top: -4px; right: -4px; background: #008751; color: white; border-radius: 50%; font-size: 9px; width: 16px; height: 16px; display: flex; align-items: center; justify-content: center; font-weight: 900;">0</span>
         </div>
       </div>
     </div>
-  </header>
+  </div>
 
-  <!-- CONTENU PRINCIPAL -->
-  <main class="max-w-6xl w-full mx-auto p-4 flex-1">
+  <!-- CORPS PRINCIPAL -->
+  <div class="container" style="margin-top: 16px; flex: 1;">
 
-    <!-- 1. MARKETPLACE -->
-    <div id="view-market" class="space-y-4">
-      <div class="bg-gradient-to-r from-[#008751] to-[#00663D] text-white p-5 rounded-2xl shadow-md">
-        <span class="bg-[#FFC72C] text-gray-950 text-[10px] font-black px-2.5 py-0.5 rounded-full uppercase">Lancement Officiel RDC</span>
-        <h1 class="text-xl md:text-3xl font-black mt-2">Achetez et vendez facilement en Afrique</h1>
-        <p class="text-xs text-green-100 mt-1">Plateforme commerciale pour tous : commerçants, entreprises et particuliers.</p>
-        <button onclick="showTab('seller')" class="mt-3 bg-[#FFC72C] text-gray-950 font-bold px-4 py-2 rounded-lg text-xs shadow hover:bg-yellow-400">
-          Créer ma Boutique (1 $/mois)
-        </button>
+    <!-- ==================== 1. VUE MARKETPLACE ==================== -->
+    <div id="view-market">
+      
+      <!-- Bannière -->
+      <div style="background: linear-gradient(135deg, #008751, #005a36); color: white; border-radius: 14px; padding: 20px; margin-bottom: 16px;">
+        <span style="background: #ffc72c; color: #000; font-size: 10px; font-weight: 800; padding: 2px 8px; border-radius: 20px; text-transform: uppercase;">Lancement Officiel RDC</span>
+        <h1 style="font-size: 22px; font-weight: 900; margin-top: 8px;">Achetez et vendez facilement en Afrique</h1>
+        <p style="font-size: 12px; color: #d1fae5; margin-top: 4px;">Tous les commerçants, entreprises et particuliers sur une seule plateforme.</p>
+        <button onclick="showTab('seller')" class="btn btn-yellow" style="margin-top: 12px;">Créer ma Boutique (1 $/mois)</button>
       </div>
 
       <!-- Recherche -->
-      <div class="relative">
-        <input id="search-input" onkeyup="filterProducts()" type="text" placeholder="Rechercher un produit (ex: groupe, pagne, café...)" class="w-full pl-9 pr-4 py-2 text-xs border border-gray-300 rounded-xl focus:border-[#008751] outline-none bg-white">
-        <span class="absolute left-3 top-2 text-xs text-gray-400">🔍</span>
+      <div class="card" style="padding: 10px; margin-bottom: 12px;">
+        <input id="search-input" onkeyup="filterProducts()" type="text" placeholder="🔍 Rechercher un produit (groupe, pagne, café...)" class="form-control" style="border: none; font-size: 13px;">
       </div>
 
-      <!-- Taux en temps réel automatique -->
-      <div class="bg-white border border-gray-200 rounded-xl p-3 flex justify-between items-center shadow-sm">
+      <!-- Taux de change contrôlé par Jires Mukundi -->
+      <div class="card" style="display: flex; justify-content: space-between; align-items: center; padding: 12px; margin-bottom: 12px;">
         <div>
-          <span class="text-[10px] uppercase font-bold text-gray-400 block">Taux de change USD ⇄ CDF</span>
-          <span class="text-xs font-black text-gray-800">
-            1 USD = <span id="live-rate-display" class="text-[#008751]">...</span> FC
-          </span>
+          <span style="font-size: 10px; color: #6b7280; font-weight: 700; text-transform: uppercase; display: block;">Taux Fixé par l'Administrateur</span>
+          <strong style="font-size: 14px; color: #111827;">1 USD = <span id="live-rate-badge" style="color: #008751; font-weight: 900;">2 850 FC</span></strong>
         </div>
-        <div class="flex items-center space-x-1.5">
-          <span id="rate-badge" class="px-2 py-0.5 bg-green-100 text-green-800 font-bold text-[10px] rounded-full flex items-center gap-1">
-            <span class="w-1.5 h-1.5 rounded-full bg-green-600 animate-pulse"></span>
-            Actualisation auto
-          </span>
-        </div>
+        <button onclick="showTab('admin')" class="btn btn-gray" style="font-size: 11px;">Modifier dans l'Admin ⚙️</button>
       </div>
 
-      <div class="flex justify-between items-center pt-1">
-        <h2 id="txt-catalog" class="text-sm font-extrabold text-gray-900">Catalogue des produits</h2>
-        <span class="text-[10px] text-gray-500">Touchez un produit pour le voir en grand</span>
+      <!-- Titre Catalogue -->
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+        <h2 id="txt-catalog" style="font-size: 15px; font-weight: 800;">Catalogue des produits</h2>
+        <span style="font-size: 11px; color: #6b7280;">Touchez un produit pour voir les détails</span>
       </div>
 
-      <div id="products-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4"></div>
+      <!-- Grille Produits -->
+      <div id="products-grid" class="products-grid"></div>
 
-      <!-- Note livraison -->
-      <div class="bg-amber-50 border border-amber-200 rounded-xl p-3 flex items-center space-x-2.5">
-        <span class="text-xl">🚚</span>
-        <p id="txt-delivery" class="text-xs text-amber-900 leading-relaxed">
-          <strong>Livraison directe :</strong> Chaque vendeur assure lui-même la livraison de ses produits avec l'acheteur.
+      <!-- Livraison -->
+      <div class="card" style="background: #fffbeb; border-color: #fde68a; margin-top: 20px; display: flex; gap: 10px; align-items: center;">
+        <span style="font-size: 24px;">🚚</span>
+        <p style="font-size: 11px; color: #92400e; line-height: 1.4;">
+          <strong>Livraison directe :</strong> Chaque vendeur assure lui-même la livraison de ses produits avec l'acheteur. MK MARKET assure la mise en relation.
         </p>
       </div>
     </div>
 
-    <!-- 2. MA BOUTIQUE (GESTION & AJOUT PRODUIT) -->
-    <div id="view-seller" class="hidden space-y-5">
-      <div class="bg-white border-2 border-green-600 rounded-2xl p-4 shadow-sm">
-        <div class="flex justify-between items-start">
+    <!-- ==================== 2. VUE MA BOUTIQUE ==================== -->
+    <div id="view-seller" style="display: none;">
+      
+      <!-- Abonnement Boutique -->
+      <div class="card" style="border: 2px solid #008751;">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start;">
           <div>
-            <span class="bg-green-100 text-[#008751] text-[10px] font-black px-2 py-0.5 rounded uppercase">Boutique Active</span>
-            <h2 class="text-base font-black text-gray-900 mt-1">Boutique de Jires Mukundi</h2>
-            <p class="text-xs text-gray-500">Kinshasa, RDC</p>
+            <span style="background: #dcfce7; color: #15803d; font-size: 10px; font-weight: 800; padding: 2px 8px; border-radius: 4px; text-transform: uppercase;">Boutique Ouverte</span>
+            <h2 style="font-size: 16px; font-weight: 900; margin-top: 4px;">Boutique de Jires Mukundi</h2>
+            <p style="font-size: 11px; color: #6b7280;">Kinshasa, RDC • Vendeur Certifié</p>
           </div>
-          <span class="text-sm font-black text-[#008751] bg-green-50 px-2 py-1 rounded-lg">$1.00 / mois</span>
+          <span style="background: #ecfdf5; color: #008751; font-weight: 900; padding: 4px 8px; border-radius: 6px; font-size: 13px;">1.00 $ / mois</span>
         </div>
 
-        <div class="mt-3 p-2.5 bg-yellow-50 border border-yellow-200 rounded-xl text-xs space-y-1">
-          <p class="font-bold text-gray-900">Abonnement Boutique :</p>
-          <p class="text-gray-700">• 1 $ par mois (mois 1 à 3), puis 15 $ par mois pour toute la boutique.</p>
-          <p class="text-green-800 font-bold">• Vos ajouts de produits sont 100% gratuits et illimités !</p>
+        <div style="background: #fefce8; border: 1px solid #fef08a; padding: 10px; border-radius: 8px; margin-top: 12px; font-size: 11px;">
+          <p style="font-weight: 700; color: #854d0e;">Rappel Abonnement Boutique :</p>
+          <p style="color: #4b5563;">• Mois 1 à 3 : 1 $ par mois pour toute la boutique.</p>
+          <p style="color: #4b5563;">• Dès le 4e mois : 15 $ par mois pour toute la boutique.</p>
+          <p style="color: #008751; font-weight: 700; margin-top: 2px;">• La publication de produits est 100% ILLIMITÉE et GRATUITE !</p>
         </div>
 
-        <button onclick="alert('Connexion sécurisée aux paiements RDC :\n- Vodacom M-Pesa\n- Airtel Money\n- Orange Money\n\nPrêt pour le renouvellement !')" class="mt-3 w-full bg-[#008751] text-white py-2 rounded-lg text-xs font-bold shadow">
+        <button onclick="alert('Connexion aux passerelles de paiement sécurisées RDC :\n- Vodacom M-Pesa (*1222#)\n- Airtel Money (*501#)\n- Orange Money (*144#)\n\nTraitement sécurisé prêt !')" class="btn btn-green" style="width: 100%; margin-top: 12px;">
           Payer le renouvellement de la boutique (1,00 $)
         </button>
       </div>
 
-      <!-- Formulaire d'ajout avec Photo -->
-      <div class="bg-white border border-gray-200 rounded-2xl p-4 shadow-sm">
-        <h3 class="font-black text-sm text-gray-900 mb-1">Ajouter un produit avec sa photo</h3>
-        <p class="text-[11px] text-gray-500 mb-3">Ajout gratuit et instantané dans votre boutique.</p>
+      <!-- Formulaire d'ajout de produit avec photo -->
+      <div class="card">
+        <h3 style="font-size: 15px; font-weight: 800; margin-bottom: 2px;">Ajouter un produit dans votre boutique</h3>
+        <p style="font-size: 11px; color: #6b7280; margin-bottom: 14px;">Votre produit sera visible par tous les acheteurs en Afrique.</p>
 
-        <form onsubmit="addProduct(event)" class="space-y-3 text-xs">
-          <div>
-            <label class="block font-bold text-gray-700 mb-1">Nom du produit *</label>
-            <input id="prod-name" type="text" required placeholder="Ex: Groupe Électrogène, Sac de Riz, Pantalon..." class="w-full p-2 border rounded-lg bg-gray-50 outline-none focus:border-[#008751]">
+        <form onsubmit="addProduct(event)">
+          <div class="form-group">
+            <label>Nom complet du produit *</label>
+            <input id="prod-name" type="text" required placeholder="Ex: Téléphone Samsung A15, Sac de Riz 25kg..." class="form-control">
           </div>
 
-          <div class="grid grid-cols-2 gap-2">
-            <div>
-              <label class="block font-bold text-gray-700 mb-1">Prix en USD ($) *</label>
-              <input id="prod-price" type="number" step="0.01" required placeholder="Ex: 50" class="w-full p-2 border rounded-lg bg-gray-50 outline-none focus:border-[#008751]">
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+            <div class="form-group">
+              <label>Prix en Dollar ($ USD) *</label>
+              <input id="prod-price" type="number" step="0.01" required placeholder="Ex: 50" class="form-control">
             </div>
-            <div>
-              <label class="block font-bold text-gray-700 mb-1">Catégorie *</label>
-              <select id="prod-cat" class="w-full p-2 border rounded-lg bg-gray-50 outline-none focus:border-[#008751]">
-                <option value="Électronique">📱 Électronique</option>
-                <option value="Mode">👗 Mode & Vêtements</option>
-                <option value="Alimentation">🌾 Alimentation</option>
-                <option value="Maison">🏠 Maison & Équipements</option>
-                <option value="Autre">📦 Autre</option>
+            <div class="form-group">
+              <label>Catégorie *</label>
+              <select id="prod-cat" class="form-control">
+                <option value="Électronique">📱 Téléphones & Électronique</option>
+                <option value="Mode">👗 Mode & Habillement</option>
+                <option value="Alimentation">🌾 Alimentation & Agriculture</option>
+                <option value="Maison">🏠 Maison & Équipement</option>
+                <option value="Véhicules">🚗 Véhicules & Pièces</option>
+                <option value="Autre">📦 Autre produit</option>
               </select>
             </div>
           </div>
 
-          <!-- Photo Input Direct -->
-          <div>
-            <label class="block font-bold text-gray-700 mb-1">Photo du produit (Galerie ou Caméra) *</label>
-            <input id="prod-photo-input" type="file" accept="image/*" onchange="handleImage(event)" class="w-full p-1.5 border border-dashed border-gray-300 rounded-lg text-xs bg-gray-50">
-            <div id="preview-box" class="mt-2 hidden text-center">
-              <img id="preview-img" src="" class="h-28 mx-auto rounded-lg object-cover border">
+          <!-- Photo depuis le téléphone -->
+          <div class="form-group">
+            <label>Photo du produit (Depuis votre appareil photo ou galerie) *</label>
+            <input id="prod-photo-input" type="file" accept="image/*" onchange="handleImage(event)" class="form-control" style="padding: 6px;">
+            <div id="preview-box" style="display: none; margin-top: 8px; text-align: center;">
+              <img id="preview-img" src="" style="height: 120px; border-radius: 8px; object-fit: cover; border: 1px solid #d1d5db;">
+              <span style="display: block; font-size: 10px; color: #008751; font-weight: 700; margin-top: 2px;">✓ Photo sélectionnée</span>
             </div>
           </div>
 
-          <div>
-            <label class="block font-bold text-gray-700 mb-1">Numéro de contact (WhatsApp / Appel) *</label>
-            <input id="prod-phone" type="tel" required placeholder="+243810000000" class="w-full p-2 border rounded-lg bg-gray-50 outline-none focus:border-[#008751]">
+          <div class="form-group">
+            <label>Numéro de contact pour les commandes (WhatsApp / Appel) *</label>
+            <input id="prod-phone" type="tel" required placeholder="+243..." class="form-control">
           </div>
 
-          <button type="submit" class="w-full bg-[#008751] text-white font-bold py-2.5 rounded-xl shadow text-xs hover:bg-green-700">
+          <button type="submit" class="btn btn-green" style="width: 100%; padding: 12px; font-size: 14px; margin-top: 6px;">
             Mettre en vente sur MK MARKET
           </button>
         </form>
       </div>
     </div>
 
-    <!-- 3. ADMIN (CONSOLE PROPRIÉTAIRE) -->
-    <div id="view-admin" class="hidden space-y-4">
-      <div class="bg-red-800 text-white p-4 rounded-xl shadow flex justify-between items-center">
+    <!-- ==================== 3. VUE ADMIN (CONSOLE PROPRIETAIRE DE JIRES MUKUNDI) ==================== -->
+    <div id="view-admin" style="display: none;">
+      
+      <!-- Bannière Admin -->
+      <div style="background: #991b1b; color: white; border-radius: 12px; padding: 16px; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center;">
         <div>
-          <span class="text-[9px] font-black uppercase bg-red-950 px-2 py-0.5 rounded">Propriétaire</span>
-          <h2 class="text-base font-black mt-1">Console Administrateur</h2>
-          <p class="text-[11px] text-red-200">mukundijires@gmail.com</p>
+          <span style="background: #450a0a; font-size: 9px; font-weight: 800; padding: 2px 6px; border-radius: 4px; text-transform: uppercase;">Espace Propriétaire</span>
+          <h2 style="font-size: 18px; font-weight: 900; margin-top: 4px;">Console Administrateur MK MARKET</h2>
+          <p style="font-size: 11px; color: #fecaca;">mukundijires@gmail.com • Kinshasa, RDC</p>
         </div>
-        <div class="text-right">
-          <span class="text-[10px] text-red-200 block uppercase font-bold">Total Abonnements</span>
-          <span class="text-lg font-black text-[#FFC72C]">$ 1,480.00</span>
+        <div style="text-align: right;">
+          <span style="font-size: 10px; color: #fecaca; display: block;">Revenus Abonnements</span>
+          <strong style="font-size: 18px; color: #ffc72c;">$ 1,480.00</strong>
         </div>
       </div>
 
-      <!-- BOÎTIER RÉGULATEUR DU TAUX DE CHANGE (ADMIN) -->
-      <div class="bg-white border-2 border-amber-400 rounded-xl p-4 shadow-sm">
-        <h3 class="font-extrabold text-xs text-gray-900 uppercase tracking-wider mb-1">⚙️ Régulateur de Taux de Change MK MARKET</h3>
-        <p class="text-[11px] text-gray-500 mb-3">Taux actuellement utilisé : <strong id="admin-current-rate" class="text-[#008751]">...</strong> FC pour 1 $</p>
-        
-        <div class="flex gap-2">
-          <input id="custom-rate-input" type="number" placeholder="Ex: 2850" class="flex-1 p-2 border rounded-lg text-xs bg-gray-50">
-          <button onclick="setCustomRate()" class="px-3 py-2 bg-amber-500 hover:bg-amber-600 text-black font-bold text-xs rounded-lg shadow">
-            Appliquer ce taux
-          </button>
-        </div>
-        <button onclick="fetchLiveExchangeRate(true)" class="mt-2 text-[10px] text-[#008751] font-bold underline">
-          🔄 Rétablir le taux officiel en direct (API automatique)
-        </button>
-      </div>
+      <!-- LE BOITIER TANT ATTENDU : CONTROLE DU TAUX PAR JIRES MUKUNDI -->
+      <div class="card" style="border: 2px solid #ffc72c; background: #fffdf5;">
+        <h3 style="font-size: 15px; font-weight: 900; color: #1a1a1a;">⚙️ Contrôle Propriétaire du Taux de Change</h3>
+        <p style="font-size: 12px; color: #4b5563; margin-top: 2px; margin-bottom: 12px;">
+          C'est vous qui fixez le taux officiel en Franc Congolais appliqué sur l'ensemble de MK MARKET.
+        </p>
 
-      <div class="bg-white border border-gray-200 rounded-xl p-4 shadow-sm">
-        <h3 class="font-extrabold text-xs mb-3 text-gray-900">Modération des Boutiques</h3>
-        <div id="shops-list" class="space-y-2 text-xs"></div>
-      </div>
-    </div>
-
-  </main>
-
-  <!-- MODAL FICHE PRODUIT -->
-  <div id="product-modal" class="fixed inset-0 bg-black/60 z-50 hidden flex items-end sm:items-center justify-center p-0 sm:p-4">
-    <div class="bg-white w-full max-w-md rounded-t-2xl sm:rounded-2xl overflow-hidden shadow-2xl p-5 space-y-3">
-      <div class="flex justify-between items-start">
-        <span id="modal-cat" class="text-[10px] uppercase font-black bg-green-100 text-[#008751] px-2 py-0.5 rounded"></span>
-        <button onclick="closeModal()" class="text-gray-400 hover:text-gray-700 text-lg font-bold">✕</button>
-      </div>
-
-      <img id="modal-img" src="" class="w-full h-48 object-cover rounded-xl border">
-
-      <div>
-        <h3 id="modal-title" class="text-base font-extrabold text-gray-900"></h3>
-        <p id="modal-shop" class="text-xs text-gray-500 mt-0.5"></p>
-        <span id="modal-price" class="text-xl font-black text-[#008751] block mt-2"></span>
-      </div>
-
-      <div class="pt-2 border-t flex flex-col gap-2">
-        <a id="modal-whatsapp" href="#" target="_blank" class="w-full text-center bg-green-600 text-white font-bold py-2 rounded-xl text-xs flex items-center justify-center space-x-1 shadow">
-          <span>💬 Commander sur WhatsApp</span>
-        </a>
-        <a id="modal-call" href="#" class="w-full text-center bg-gray-100 text-gray-800 font-bold py-2 rounded-xl text-xs flex items-center justify-center space-x-1">
-          <span>📞 Appeler le vendeur</span>
-        </a>
-      </div>
-    </div>
-  </div>
-
-  <!-- PIED DE PAGE -->
-  <footer class="bg-gray-950 text-gray-300 text-xs py-5 mt-8 border-t border-gray-800">
-    <div class="max-w-6xl mx-auto px-4 text-center space-y-1.5">
-      <div class="flex items-center justify-center space-x-1.5">
-        <div class="w-5 h-5 bg-[#008751] text-[#FFC72C] font-black rounded flex items-center justify-center text-[10px]">MK</div>
-        <span class="font-black text-white text-xs">MK MARKET</span>
-      </div>
-      <p id="txt-footer-motto" class="text-gray-400 text-[11px]">« Tout pour le développement de l'Afrique. »</p>
-      <p class="text-gray-500 text-[10px]">Contact propriétaire : mukundijires@gmail.com • Kinshasa, RDC</p>
-    </div>
-  </footer>
-
-  <!-- SCRIPT AVEC API DE TAUX DE CHANGE EN DIRECT -->
-  <script>
-    let currentCurrency = 'USD';
-    let rate = 2800; // Taux de départ par défaut
-    let cart = 0;
-    let tempImage = null;
-
-    const dict = {
-      fr: { motto: "Tout pour le développement de l'Afrique.", catalog: "Catalogue des produits", delivery: "Livraison directe : Chaque vendeur assure lui-même la livraison de ses produits avec l'acheteur." },
-      en: { motto: "All for the development of Africa.", catalog: "Products Catalog", delivery: "Direct delivery: Each seller directly handles delivery with the buyer." },
-      ln: { motto: "Nyonso mpo na botomboli ya Afrika.", catalog: "Biloko nyonso ezali mpo na kosomba", delivery: "Motindeli : Moteki moko nde akotindela yo biloko na boyokani na yo." },
-      sw: { motto: "Yote kwa ajili ya maendeleo ya Afrika.", catalog: "Bidhaa Zote Zilizopo", delivery: "Wajibu wa usafirishaji : Kila muuzaji anahusika kusafirisha bidhaa zake." },
-      lu: { motto: "Bionso bua didiunda dia Afrike.", catalog: "Bintu bionso bidi bua kusumba", delivery: "Bujitu bua difila : Mupanyi nkayende ke ufikisha bintu ku diumvuangana." },
-      kg: { motto: "Bima nionso sambu na kutomisa Afrika.", catalog: "Bima nionso kele samu na kusumba", delivery: "Kizalu ya kutinda : Mutekisi mosi mpenza ke wakana ti musumbi." }
-    };
-
-    let products = [
-      { id: 1, name: "Groupe Électrogène Silencieux 5kVA", price: 650, shop: "Kinshasa Tech", phone: "+243810000001", cat: "Maison", image: "https://images.unsplash.com/photo-1581092160607-ee22621dd758?w=500&auto=format&fit=crop&q=60" },
-      { id: 2, name: "Lot de Pagnes Wax Authentiques (6 yards)", price: 45, shop: "Lubumbashi Mode", phone: "+243990000002", cat: "Mode", image: "https://images.unsplash.com/photo-1528459801416-a9e53bbf4e17?w=500&auto=format&fit=crop&q=60" },
-      { id: 3, name: "Café Pur Arabica Kivu (Sac de 5kg)", price: 35, shop: "Goma Agro", phone: "+243820000003", cat: "Alimentation", image: "https://images.unsplash.com/photo-1559056199-641a0ac8b55e?w=500&auto=format&fit=crop&q=60" }
-    ];
-
-    let shops = [
-      { id: 1, name: "Kinshasa Tech", phone: "+243810000001", status: "APPROUVÉ" },
-      { id: 2, name: "Lubumbashi Mode", phone: "+243990000002", status: "EN ATTENTE" },
-      { id: 3, name: "Goma Agro", phone: "+243820000003", status: "SUSPENDU" }
-    ];
-
-    // FONCTION API TAUX AUTOMATIQUE EN DIRECT
-    async function fetchLiveExchangeRate(manualNotice = false) {
-      try {
-        const response = await fetch('https://open.er-api.com/v6/latest/USD');
-        const data = await response.json();
-        if (data && data.rates && data.rates.CDF) {
-          rate = Math.round(data.rates.CDF);
-          updateRateUI();
-          if (manualNotice) alert("✅ Taux officiel en direct synchronisé avec succès : 1$ = " + rate + " FC");
-        }
-      } catch (err) {
-        console.log("Erreur de connexion API, conservation du taux actuel:", rate);
-        updateRateUI();
-      }
-    }
-
-    function updateRateUI() {
-      document.getElementById('live-rate-display').innerText = rate.toLocaleString();
-      document.getElementById('admin-current-rate').innerText = rate.toLocaleString();
-      renderProducts();
-    }
-
-    function setCustomRate() {
-      const val = parseFloat(document.getElementById('custom-rate-input').value);
-      if (val && val > 0) {
-        rate = Math.round(val);
-        updateRateUI();
-        alert("✅ Taux personnalisé appliqué pour tout MK MARKET : 1$ = " + rate + " FC");
-      }
-    }
-
-    function renderProducts(list = products) {
-      document.getElementById('products-grid').innerHTML = list.map(p => `
-        <div class="bg-white border border-gray-200 rounded-xl overflow-hidden shadow-sm flex flex-col justify-between cursor-pointer" onclick="openModal(${p.id})">
-          <div class="h-40 bg-gray-100 overflow-hidden relative">
-            <img src="${p.image}" class="w-full h-full object-cover">
-            <span class="absolute top-2 left-2 text-[9px] uppercase font-bold bg-white text-[#008751] px-2 py-0.5 rounded shadow">${p.cat}</span>
-          </div>
-          <div class="p-3 flex-1 flex flex-col justify-between">
-            <div>
-              <h3 class="font-bold text-xs text-gray-900">${p.name}</h3>
-              <p class="text-[10px] text-gray-500 mt-0.5">Boutique : <strong>${p.shop}</strong></p>
-            </div>
-            <div class="mt-3 pt-2 border-t flex items-center justify-between">
-              <span class="text-xs font-black text-[#008751]">
-                ${currentCurrency === 'USD' ? '$' + p.price.toFixed(2) : (p.price * rate).toLocaleString() + ' FC'}
-              </span>
-              <button onclick="event.stopPropagation(); cart++; document.getElementById('cart-badge').innerText=cart;" class="px-2.5 py-1 bg-[#008751] text-white rounded text-[10px] font-bold">
-                Ajouter
-              </button>
-            </div>
+        <div style="background: white; border: 1px solid #e5e7eb; padding: 12px; border-radius: 8px; margin-bottom: 12px;">
+          <span style="font-size: 11px; color: #6b7280; font-weight: 700;">Taux actuellement en vigueur :</span>
+          <div style="font-size: 20px; font-weight: 900; color: #008751; margin-top: 2px;">
+            1 USD = <span id="admin-rate-display">2 850 FC</span>
           </div>
         </div>
-      `).join('');
-    }
 
-    function openModal(id) {
-      const p = products.find(x => x.id === id);
-      if (!p) return;
-      document.getElementById('modal-cat').innerText = p.cat;
-      document.getElementById('modal-img').src = p.image;
-      document.getElementById('modal-title').innerText = p.name;
-      document.getElementById('modal-shop').innerText = 'Boutique : ' + p.shop;
-      document.getElementBy
+        <div class="form-group">
+          <label style="font-size: 12px; font-weight: 700;">Tapez le nouveau taux que vous décidez d'appliq
