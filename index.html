@@ -11,7 +11,6 @@
     body { background-color: #f4f6f8; color: #111827; min-height: 100vh; display: flex; flex-direction: column; }
     .container { max-width: 1050px; margin: 0 auto; padding: 0 14px; width: 100%; }
     
-    /* Boutons */
     .btn { display: inline-block; font-weight: 700; padding: 8px 14px; border-radius: 8px; cursor: pointer; border: none; text-align: center; text-decoration: none; font-size: 12px; }
     .btn-green { background-color: #008751; color: white; }
     .btn-yellow { background-color: #ffc72c; color: #111827; }
@@ -21,17 +20,14 @@
     .card { background: white; border-radius: 12px; border: 1px solid #e5e7eb; padding: 14px; margin-bottom: 14px; box-shadow: 0 1px 3px rgba(0,0,0,0.04); }
     .header-bar { background: white; border-bottom: 1px solid #e5e7eb; position: sticky; top: 0; z-index: 50; padding: 8px 0; }
     
-    /* Grille Produits */
     .products-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 14px; margin-top: 10px; }
-    .product-card { background: white; border: 1px solid #e5e7eb; border-radius: 12px; overflow: hidden; display: flex; flex-direction: column; cursor: pointer; transition: transform 0.1s ease; }
-    .product-card:active { transform: scale(0.98); }
+    .product-card { background: white; border: 1px solid #e5e7eb; border-radius: 12px; overflow: hidden; display: flex; flex-direction: column; cursor: pointer; }
     .product-img { width: 100%; height: 165px; object-fit: cover; background-color: #f3f4f6; }
     .product-info { padding: 12px; flex: 1; display: flex; flex-direction: column; justify-content: space-between; }
     
     .form-group { margin-bottom: 10px; }
     .form-group label { display: block; font-size: 11px; font-weight: 700; margin-bottom: 3px; color: #374151; }
     .form-control { width: 100%; padding: 9px; border: 1px solid #d1d5db; border-radius: 8px; font-size: 13px; outline: none; background: #fff; }
-    .form-control:focus { border-color: #008751; }
     
     .shop-underline { text-decoration: underline; font-weight: 800; color: #008751; }
   </style>
@@ -50,29 +46,30 @@
     let tempImage = null;
     let isAdminUnlocked = false;
 
-    // Boutiques partenaires
     let shops = safeGet('mk_shops', [
       { id: 1, name: "Kinshasa Shopping Pro", owner: "Albert B.", phone: "+243810000001", city: "Kinshasa", status: "ACTIVE", fee: 1.00, salesCount: 14 },
       { id: 2, name: "Lubumbashi Mode Wax", owner: "Sarah M.", phone: "+243990000002", city: "Lubumbashi", status: "ACTIVE", fee: 1.00, salesCount: 8 }
     ]);
 
-    // Produits en vente sur la Marketplace
-    let products = safeGet('mk_products', [
-      { id: 1, shopId: 1, shopName: "Kinshasa Shopping Pro", name: "Groupe Électrogène Silencieux 5kVA", price: 650, phone: "+243810000001", city: "Kinshasa", cat: "Équipement", desc: "Groupe électrogène économique, faible consommation de carburant, idéal pour maison ou commerce.", image: "https://images.unsplash.com/photo-1581092160607-ee22621dd758?w=500&auto=format&fit=crop&q=60" },
-      { id: 2, shopId: 2, shopName: "Lubumbashi Mode Wax", name: "Lot de Pagnes Wax Authentiques (6 yards)", price: 45, phone: "+243990000002", city: "Lubumbashi", cat: "Mode", desc: "Véritable Wax africain 100% coton de haute qualité, couleurs éclatantes et durables.", image: "https://images.unsplash.com/photo-1528459801416-a9e53bbf4e17?w=500&auto=format&fit=crop&q=60" }
-    ]);
+    const defaultProducts = [
+      { id: 1, shopId: 1, shopName: "Kinshasa Shopping Pro", name: "Groupe Électrogène Silencieux 5kVA", price: 650, phone: "+243810000001", city: "Kinshasa", cat: "Équipement", desc: "Groupe électrogène économique, faible consommation, idéal pour commerce ou maison.", image: "https://images.unsplash.com/photo-1581092160607-ee22621dd758?w=500&auto=format&fit=crop&q=60" },
+      { id: 2, shopId: 2, shopName: "Lubumbashi Mode Wax", name: "Lot de Pagnes Wax Authentiques (6 yards)", price: 45, phone: "+243990000002", city: "Lubumbashi", cat: "Mode", desc: "Véritable Wax africain 100% coton de qualité supérieure, couleurs durables.", image: "https://images.unsplash.com/photo-1528459801416-a9e53bbf4e17?w=500&auto=format&fit=crop&q=60" }
+    ];
+
+    let products = safeGet('mk_products', defaultProducts);
+    if (!Array.isArray(products) || products.length === 0) {
+      products = defaultProducts;
+      safeSet('mk_products', products);
+    }
 
     let myShop = safeGet('mk_my_shop', null);
 
-    // NAVIGATION ENTRE LES SECTIONS
     function showTab(tabName) {
-      const tabs = ['market', 'seller', 'profile', 'cart', 'admin', 'shop-detail'];
-      tabs.forEach(t => {
+      ['market', 'seller', 'profile', 'cart', 'admin', 'shop-detail'].forEach(t => {
         const el = document.getElementById('view-' + t);
         if (el) el.style.display = 'none';
       });
 
-      // Réinitialiser les boutons de menu
       ['market', 'seller', 'profile'].forEach(t => {
         const btn = document.getElementById('tab-' + t);
         if (btn) btn.className = 'btn btn-gray';
@@ -112,7 +109,7 @@
 </head>
 <body>
 
-  <!-- BANDEAU OFFICIEL SUPÉRIEUR -->
+  <!-- BANDEAU TOP -->
   <div style="background-color: #00663d; color: white; padding: 5px 0; font-size: 11px;">
     <div class="container" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 4px;">
       <div style="display: flex; align-items: center; gap: 6px;">
@@ -136,10 +133,9 @@
     </div>
   </div>
 
-  <!-- NAVIGATION PRINCIPALE (SANS LE BOUTON ADMIN PUBLIC) -->
+  <!-- NAVIGATION -->
   <div class="header-bar">
     <div class="container" style="display: flex; justify-content: space-between; align-items: center; gap: 6px;">
-      <!-- Logo -->
       <div onclick="showTab('market')" style="display: flex; align-items: center; gap: 6px; cursor: pointer; flex-shrink: 0;">
         <div style="width: 32px; height: 32px; background: #008751; border-radius: 6px; display: flex; align-items: center; justify-content: center; color: #ffc72c; font-weight: 900; font-size: 14px;">
           MK
@@ -150,7 +146,6 @@
         </div>
       </div>
 
-      <!-- Menu demandé : Marketplace | Ma Boutique | Mon Profil | Panier -->
       <div style="display: flex; gap: 4px; align-items: center;">
         <button id="tab-market" onclick="showTab('market')" class="btn btn-green" style="padding: 6px 9px;">Marketplace</button>
         <button id="tab-seller" onclick="showTab('seller')" class="btn btn-gray" style="padding: 6px 9px;">Ma Boutique</button>
@@ -162,34 +157,28 @@
     </div>
   </div>
 
-  <!-- ZONE DE CONTENU -->
+  <!-- ZONE CONTENU -->
   <div class="container" style="margin-top: 12px; flex: 1;">
 
-    <!-- ================= 1. MARKETPLACE (L'ESPACE DU MARCHÉ) ================= -->
+    <!-- ================= 1. MARKETPLACE (PAGE D'ACCUEIL) ================= -->
     <div id="view-market">
       
-      <!-- Bannière -->
+      <!-- Bannière avec bouton "Créer ma boutique" épuré -->
       <div style="background: linear-gradient(135deg, #008751, #005a36); color: white; border-radius: 12px; padding: 16px; margin-bottom: 12px;">
         <span style="background: #ffc72c; color: #000; font-size: 9px; font-weight: 800; padding: 2px 6px; border-radius: 12px; text-transform: uppercase;">Espace du Marché</span>
         <h1 style="font-size: 18px; font-weight: 900; margin-top: 6px;">Achetez et vendez facilement en Afrique</h1>
         <p style="font-size: 11px; color: #d1fae5; margin-top: 2px;">Tous les vendeurs et produits vérifiés réunis sur une seule plateforme.</p>
-        <button onclick="showTab('seller')" class="btn btn-yellow" style="margin-top: 10px;">Ouvrir ma Boutique (1 $/mois)</button>
+        <button onclick="showTab('seller')" class="btn btn-yellow" style="margin-top: 10px; font-size: 13px; padding: 8px 16px;">
+          Créer ma boutique
+        </button>
       </div>
 
       <!-- Recherche -->
-      <div class="card" style="padding: 8px; margin-bottom: 10px;">
+      <div class="card" style="padding: 8px; margin-bottom: 12px;">
         <input id="search-input" onkeyup="filterProducts()" type="text" placeholder="🔍 Rechercher un produit, un vendeur..." class="form-control" style="border: none;">
       </div>
 
-      <!-- Taux de change officiel BCC -->
-      <div class="card" style="display: flex; justify-content: space-between; align-items: center; padding: 10px; margin-bottom: 10px; background: #fffdf5; border-color: #fef08a;">
-        <div>
-          <span style="font-size: 9px; color: #854d0e; font-weight: 700; text-transform: uppercase; display: block;">Taux Indicatif BCC (Banque Centrale du Congo)</span>
-          <strong style="font-size: 14px; color: #111827;">1 USD = <span style="color: #008751; font-weight: 900;">2 850 FC</span></strong>
-        </div>
-        <span style="background: #ecfdf5; color: #065f46; font-size: 10px; font-weight: 800; padding: 3px 8px; border-radius: 10px;">● Officiel BCC</span>
-      </div>
-
+      <!-- Titre Catalogue -->
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
         <h2 style="font-size: 14px; font-weight: 800;">Tous les produits disponibles</h2>
         <span style="font-size: 10px; color: #6b7280;">Appuyez sur un produit pour voir la boutique</span>
@@ -198,47 +187,51 @@
       <!-- Grille des produits -->
       <div id="products-grid" class="products-grid"></div>
 
-      <!-- Note livraison -->
-      <div class="card" style="background: #fffbeb; border-color: #fde68a; margin-top: 16px; display: flex; gap: 8px; align-items: center;">
+      <!-- Message livraison : EN BAS DE TOUS LES PRODUITS -->
+      <div class="card" style="background: #fffbeb; border-color: #fde68a; margin-top: 20px; display: flex; gap: 8px; align-items: center;">
         <span style="font-size: 20px;">🚚</span>
         <p style="font-size: 11px; color: #92400e; line-height: 1.3;">
           <strong>Livraison directe :</strong> Chaque vendeur assure lui-même la livraison de ses produits avec l'acheteur. MK MARKET met en relation directe.
         </p>
       </div>
+
+      <!-- Message Taux BCC : TRÈS BAS EN BAS DE PAGE -->
+      <div class="card" style="display: flex; justify-content: space-between; align-items: center; padding: 10px; margin-top: 10px; background: #fffdf5; border-color: #fef08a;">
+        <div>
+          <span style="font-size: 9px; color: #854d0e; font-weight: 700; text-transform: uppercase; display: block;">Taux Indicatif BCC (Banque Centrale du Congo)</span>
+          <strong style="font-size: 13px; color: #111827;">1 USD = <span style="color: #008751; font-weight: 900;">2 850 FC</span></strong>
+        </div>
+        <span style="background: #ecfdf5; color: #065f46; font-size: 9px; font-weight: 800; padding: 2px 6px; border-radius: 8px;">● Officiel BCC</span>
+      </div>
+
     </div>
 
-    <!-- ================= VUE DÉTAIL DU PRODUIT & BOUTIQUE DU VENDEUR ================= -->
+    <!-- ================= DÉTAIL PRODUIT ET BOUTIQUE ================= -->
     <div id="view-shop-detail" style="display: none;">
       <button onclick="showTab('market')" class="btn btn-gray" style="margin-bottom: 12px;">← Retour au Marché (Marketplace)</button>
-      
-      <div class="card" id="detail-product-card">
-        <!-- Rempli en JavaScript lors du clic sur un produit -->
-      </div>
+      <div class="card" id="detail-product-card"></div>
     </div>
 
-    <!-- ================= 2. MA BOUTIQUE (GESTION & CRÉATION) ================= -->
+    <!-- ================= 2. MA BOUTIQUE ================= -->
     <div id="view-seller" style="display: none;">
       <div id="seller-content-box"></div>
     </div>
 
-    <!-- ================= 3. MON PROFIL (STATISTIQUES & VENDEUR) ================= -->
+    <!-- ================= 3. MON PROFIL ================= -->
     <div id="view-profile" style="display: none;">
       <div id="profile-content-box"></div>
     </div>
 
-    <!-- ================= 4. LE PANIER / COMMANDES ================= -->
+    <!-- ================= 4. LE PANIER ================= -->
     <div id="view-cart" style="display: none;">
       <div class="card">
-        <h2 style="font-size: 16px; font-weight: 900; margin-bottom: 4px;">Mon Panier & Produits Achetés</h2>
-        <p style="font-size: 11px; color: #6b7280; margin-bottom: 12px;">Retrouvez ici les produits que vous avez commandés sur MK MARKET.</p>
+        <h2 style="font-size: 16px; font-weight: 900; margin-bottom: 4px;">Mon Panier & Commandes</h2>
         <div id="cart-items-list"></div>
       </div>
     </div>
 
-    <!-- ================= 5. COFFRE ADMINISTRATEUR PRIVÉ (JIRES MUKUNDI) ================= -->
+    <!-- ================= 5. COFFRE ADMIN ================= -->
     <div id="view-admin" style="display: none;">
-      
-      <!-- Écran de verrouillage secret -->
       <div id="admin-lock-box" class="card" style="border: 2px solid #dc2626; max-width: 400px; margin: 20px auto; text-align: center; padding: 20px;">
         <span style="font-size: 32px;">🔒</span>
         <h2 style="font-size: 16px; font-weight: 900; color: #991b1b; margin-top: 4px;">Coffre Privé Propriétaire</h2>
@@ -246,54 +239,43 @@
 
         <form onsubmit="unlockOwnerVault(event)" style="margin-top: 12px;">
           <div class="form-group" style="text-align: left;">
-            <label>Code secret propriétaire :</label>
+            <label>Code secret :</label>
             <input id="owner-secret-code" type="password" required placeholder="Tapez votre code (1234)" class="form-control" style="text-align: center; font-size: 16px; font-weight: 900; letter-spacing: 2px;">
           </div>
-          <button type="submit" class="btn btn-admin" style="width: 100%; padding: 10px;">
-            Ouvrir mon Coffre Privé
-          </button>
+          <button type="submit" class="btn btn-admin" style="width: 100%; padding: 10px;">Ouvrir mon Coffre Privé</button>
         </form>
       </div>
 
-      <!-- Dashboard secret une fois déverrouillé -->
       <div id="admin-vault-content" style="display: none;">
         <div style="background: #991b1b; color: white; border-radius: 10px; padding: 12px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center;">
-          <div>
-            <h2 style="font-size: 15px; font-weight: 900;">Coffre Privé MK MARKET</h2>
-            <p style="font-size: 10px; color: #fecaca;">Propriétaire : Jires Mukundi • Kinshasa, RDC</p>
-          </div>
+          <h2 style="font-size: 15px; font-weight: 900;">Coffre Privé MK MARKET</h2>
           <button onclick="lockOwnerVault()" class="btn btn-gray" style="font-size: 10px; padding: 4px 8px;">🔒 Verrouiller</button>
         </div>
-
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px;">
-          <div class="card" style="margin: 0; background: #ecfdf5; border-color: #a7f3d0; padding: 10px;">
-            <span style="font-size: 10px; color: #065f46; font-weight: 700; display: block;">Total Abonnements Encaissés</span>
+          <div class="card" style="margin: 0; background: #ecfdf5; padding: 10px;">
+            <span style="font-size: 10px; color: #065f46; font-weight: 700; display: block;">Total Encaissé</span>
             <strong id="stat-revenue" style="font-size: 20px; color: #008751; font-weight: 900;">$ 0.00</strong>
           </div>
-          <div class="card" style="margin: 0; background: #eff6ff; border-color: #bfdbfe; padding: 10px;">
+          <div class="card" style="margin: 0; background: #eff6ff; padding: 10px;">
             <span style="font-size: 10px; color: #1e40af; font-weight: 700; display: block;">Boutiques Actives</span>
             <strong id="stat-active" style="font-size: 20px; color: #2563eb; font-weight: 900;">0</strong>
           </div>
         </div>
-
         <div class="card">
-          <h3 style="font-size: 13px; font-weight: 800; margin-bottom: 8px;">Demandes d'ouverture de boutiques</h3>
+          <h3 style="font-size: 13px; font-weight: 800; margin-bottom: 8px;">Boutiques & Validations</h3>
           <div id="admin-shops-list" style="display: flex; flex-direction: column; gap: 8px;"></div>
         </div>
       </div>
-
     </div>
 
   </div>
 
-  <!-- PIED DE PAGE AVEC ACCÈS COFFRE DISCRET -->
+  <!-- PIED DE PAGE -->
   <div style="background: #111827; color: #9ca3af; font-size: 10px; padding: 16px 0; margin-top: 24px; text-align: center;">
     <div class="container">
       <strong style="color: white; font-size: 12px; display: block; margin-bottom: 2px;">MK MARKET</strong>
       <p style="color: #d1d5db;">« Tout pour le développement de l'Afrique. »</p>
       <p style="margin-top: 4px; color: #6b7280;">Plateforme commerciale panafricaine • Kinshasa, RDC</p>
-      
-      <!-- LIEN SECRET VERS TON COFFRE PRIVÉ (INVISIBLE POUR LES CLIENTS LAMBDA) -->
       <div style="margin-top: 10px; padding-top: 8px; border-top: 1px solid #1f2937;">
         <button onclick="showTab('admin')" style="background: transparent; border: none; color: #4b5563; font-size: 9px; cursor: pointer;">
           🔒 Accès Coffre Propriétaire
@@ -302,17 +284,13 @@
     </div>
   </div>
 
-  <!-- SCRIPTS LOGIQUES -->
+  <!-- JAVASCRIPT -->
   <script>
-    // 1. AFFICHER LES PRODUITS SUR LA MARKETPLACE
     function renderProducts(list = products) {
       const grid = document.getElementById('products-grid');
       if (!grid) return;
       grid.innerHTML = list.map(p => {
-        const displayPrice = currentCurrency === 'USD' 
-          ? '$' + p.price.toFixed(2) 
-          : (p.price * rate).toLocaleString() + ' FC';
-
+        const displayPrice = currentCurrency === 'USD' ? '$' + p.price.toFixed(2) : (p.price * rate).toLocaleString() + ' FC';
         return `
           <div class="product-card" onclick="openProductDetail(${p.id})">
             <img src="${p.image}" class="product-img" alt="${p.name}">
@@ -326,7 +304,7 @@
               </div>
               <div style="margin-top: 8px; padding-top: 6px; border-top: 1px solid #f3f4f6; display: flex; justify-content: space-between; align-items: center;">
                 <span style="font-size: 14px; font-weight: 900; color: #008751;">${displayPrice}</span>
-                <span class="btn btn-green" style="font-size: 10px; padding: 4px 8px;">Voir la boutique →</span>
+                <span class="btn btn-green" style="font-size: 10px; padding: 4px 8px;">Voir boutique →</span>
               </div>
             </div>
           </div>
@@ -334,7 +312,6 @@
       }).join('');
     }
 
-    // 2. EN APPUYANT SUR LE PRODUIT : ARRIVER SUR LA BOUTIQUE ET CONTACTER LE VENDEUR
     function openProductDetail(id) {
       const p = products.find(x => x.id === id);
       if (!p) return;
@@ -343,7 +320,18 @@
 
       document.getElementById('detail-product-card').innerHTML = `
         <img src="${p.image}" style="width: 100%; height: 220px; object-fit: cover; border-radius: 8px; margin-bottom: 12px;">
-        
         <span style="background: #dcfce7; color: #15803d; font-size: 10px; font-weight: 800; padding: 2px 6px; border-radius: 4px; text-transform: uppercase;">${p.cat}</span>
         <h2 style="font-size: 17px; font-weight: 900; margin-top: 4px; color: #111827;">${p.name}</h2>
-        <div style="fon
+        <div style="font-size: 20px; font-weight: 900; color: #008751; margin: 6px 0;">${displayPrice}</div>
+        
+        <div style="background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 8px; padding: 12px; margin: 12px 0;">
+          <span style="font-size: 10px; color: #6b7280; font-weight: 700; text-transform: uppercase;">Boutique Vendeur MK MARKET :</span>
+          <h3 style="font-size: 15px; font-weight: 900; color: #008751; text-decoration: underline;">${p.shopName}</h3>
+          <p style="font-size: 11px; color: #4b5563; margin-top: 2px;">📍 Ville : <strong>${p.city}</strong></p>
+          <p style="font-size: 11px; color: #4b5563;">📞 Contact : <strong>${p.phone}</strong></p>
+          <p style="font-size: 11px; color: #374151; margin-top: 6px; line-height: 1.4;">${p.desc}</p>
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 10px;">
+          <a href="https://wa.me/${cleanPhone}?text=Bonjour,%20je%20suis%20intéressé%20par%20votre%20produit%20${encodeURIComponent(p.name)}%20sur%20MK%20MARKET." target="_blank" class="btn" style="background: #16a34a; color: white; padding: 11px; font-size: 13px;">
+            💬 Contacter
