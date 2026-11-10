@@ -282,4 +282,67 @@
         <!-- Formulaire Ajouter Produit -->
         <div class="card">
           <h3 style="font-size: 14px; font-weight: 800; margin-bottom: 2px;">Ajouter un nouveau produit</h3>
-          <p style="font-size: 11px; color: #6b7280; margin-bottom: 12px;">Ce produit sera exposé sur la
+          <p style="font-size: 11px; color: #6b7280; margin-bottom: 12px;">Ce produit sera exposé sur la Marketplace avec le nom de votre boutique souligné.</p>
+
+          <form onsubmit="handleSellerAddProductDirect(event)">
+            <div class="form-group">
+              <label>Nom du produit *</label>
+              <input id="prod-add-title" type="text" required placeholder="Ex: Sac de Riz 25kg, Téléphone..." class="form-control">
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+              <div class="form-group">
+                <label>Prix en USD ($) *</label>
+                <input id="prod-add-price" type="number" step="0.01" required placeholder="Ex: 40" class="form-control">
+              </div>
+              <div class="form-group">
+                <label>Catégorie *</label>
+                <select id="prod-add-category" class="form-control">
+                  <option value="Électronique">📱 Électronique</option>
+                  <option value="Mode">👗 Mode & Vêtements</option>
+                  <option value="Alimentation">🌾 Alimentation & Agriculture</option>
+                  <option value="Maison">🏠 Maison & Équipement</option>
+                  <option value="Autre">📦 Autre catégorie</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label>Photo du produit (Depuis votre appareil photo ou galerie) *</label>
+              <input type="file" accept="image/*" onchange="uploadProductPhoto(event)" class="form-control" style="padding: 6px;">
+            </div>
+
+            <button type="submit" class="btn btn-green" style="width: 100%; padding: 11px; font-size: 13px;">
+              Mettre en vente sur le Marché
+            </button>
+          </form>
+        </div>
+
+        <!-- Liste des produits de sa boutique -->
+        <div class="card">
+          <h3 style="font-size: 14px; font-weight: 800; margin-bottom: 8px;">Mes produits en vente dans ma boutique</h3>
+          <div id="seller-my-products-list" style="display: flex; flex-direction: column; gap: 10px;"></div>
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- ================= 3. MON PROFIL ================= -->
+    <div id="view-profile" style="display: none;">
+      <div id="profile-content-box"></div>
+    </div>
+
+    <!-- ================= 4. LE PANIER ================= -->
+    <div id="view-cart" style="display: none;">
+      <div class="card">
+        <h2 style="font-size: 16px; font-weight: 900; margin-bottom: 4px;">Mon Panier & Commandes</h2>
+        <div id="cart-items-list"></div>
+      </div>
+    </div>
+
+    <!-- ================= 5. CONSOLE DU PATRON (LIEN SECRET ?boss=jires) ================= -->
+    <div id="view-admin-secret" style="display: none;">
+      <div id="boss-auth-screen" class="card" style="border: 2px solid #dc2626; max-width: 400px; margin: 30px auto; text-align: center; padding: 24px;">
+        <span style="font-size: 36px;">🔐</span>
+        <h2 style="font-size: 17px; font-weight: 900; color: #991b1b; margin-top: 6px;">Espace R
