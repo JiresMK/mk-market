@@ -9,7 +9,7 @@
 </head>
 <body class="bg-gray-50 text-gray-900 font-sans min-h-screen flex flex-col">
 
-  <!-- BANDEAU OFFICIEL (DEVISE + DEVISES + 6 LANGUES) -->
+  <!-- BANDEAU HAUT (DEVISE + DEVISES + 6 LANGUES) -->
   <div class="bg-[#00663D] text-white px-3 py-1.5 text-xs">
     <div class="max-w-6xl mx-auto flex justify-between items-center flex-wrap gap-2">
       <div class="flex items-center space-x-1.5">
@@ -23,7 +23,7 @@
           <button id="btn-cdf" onclick="setCurrency('CDF')" class="px-1.5 py-0.5 rounded text-white">CDF (FC)</button>
         </div>
         <!-- 6 Langues -->
-        <select id="lang-select" onchange="changeLanguage(this.value)" class="bg-black/30 text-white rounded px-1.5 py-0.5 text-[11px] font-semibold border-none focus:outline-none">
+        <select id="lang-select" onchange="changeLanguage(this.value)" class="bg-black/30 text-white rounded px-1 py-0.5 text-[11px] font-semibold border-none focus:outline-none">
           <option value="fr">🇫🇷 Français</option>
           <option value="en">🇬🇧 English</option>
           <option value="ln">🇨🇩 Lingála</option>
@@ -35,10 +35,9 @@
     </div>
   </div>
 
-  <!-- NAVIGATION PRINCIPALE -->
+  <!-- NAVIGATION -->
   <header class="bg-white border-b border-gray-200 sticky top-0 z-30 shadow-sm">
-    <div class="max-w-6xl mx-auto px-4 py-2.5 flex items-center justify-between gap-3">
-      <!-- Logo -->
+    <div class="max-w-6xl mx-auto px-4 py-2.5 flex items-center justify-between gap-2">
       <div class="flex items-center space-x-2 cursor-pointer" onclick="showTab('market')">
         <div class="w-9 h-9 bg-[#008751] rounded-lg flex items-center justify-center text-[#FFC72C] font-black text-lg shadow">
           MK
@@ -49,12 +48,11 @@
         </div>
       </div>
 
-      <!-- Navigation Espaces -->
-      <div class="flex items-center space-x-1.5 text-xs font-bold">
+      <div class="flex items-center space-x-1 text-xs font-bold">
         <button id="tab-market" onclick="showTab('market')" class="px-2.5 py-1.5 rounded-lg bg-[#008751] text-white">Marketplace</button>
         <button id="tab-seller" onclick="showTab('seller')" class="px-2.5 py-1.5 rounded-lg text-gray-700 bg-gray-100">Ma Boutique</button>
         <button id="tab-admin" onclick="showTab('admin')" class="px-2.5 py-1.5 rounded-lg text-red-700 bg-red-50">Admin</button>
-        <div class="relative p-1.5 bg-gray-100 rounded-lg cursor-pointer" onclick="alert('Votre panier contient ' + cart + ' produit(s).')">
+        <div onclick="showCart()" class="relative p-1.5 bg-gray-100 rounded-lg cursor-pointer">
           🛒<span id="cart-badge" class="absolute -top-1 -right-1 bg-[#008751] text-white text-[9px] font-black w-4 h-4 rounded-full flex items-center justify-center">0</span>
         </div>
       </div>
@@ -64,8 +62,8 @@
   <!-- CONTENU PRINCIPAL -->
   <main class="max-w-6xl w-full mx-auto p-4 flex-1">
 
-    <!-- 1. VUE MARKETPLACE -->
-    <div id="view-market" class="space-y-6">
+    <!-- 1. MARKETPLACE -->
+    <div id="view-market" class="space-y-4">
       <div class="bg-gradient-to-r from-[#008751] to-[#00663D] text-white p-5 rounded-2xl shadow-md">
         <span class="bg-[#FFC72C] text-gray-950 text-[10px] font-black px-2.5 py-0.5 rounded-full uppercase">Lancement Officiel RDC</span>
         <h1 class="text-xl md:text-3xl font-black mt-2">Achetez et vendez facilement en Afrique</h1>
@@ -75,278 +73,282 @@
         </button>
       </div>
 
-      <div class="flex justify-between items-center">
-        <h2 id="txt-catalog" class="text-base font-extrabold text-gray-900">Tous les produits disponibles</h2>
-        <span id="rate-notice" class="text-[10px] text-gray-500 font-semibold">Taux du jour : 1$ = 2800 FC</span>
+      <!-- Recherche -->
+      <div class="relative">
+        <input id="search-input" onkeyup="filterProducts()" type="text" placeholder="Rechercher un produit (ex: groupe, pagne, café...)" class="w-full pl-9 pr-4 py-2 text-xs border border-gray-300 rounded-xl focus:border-[#008751] outline-none bg-white">
+        <span class="absolute left-3 top-2 text-xs text-gray-400">🔍</span>
       </div>
 
-      <!-- Grille Produits avec Photos -->
-      <div id="products-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-5"></div>
+      <!-- Taux en temps réel automatique -->
+      <div class="bg-white border border-gray-200 rounded-xl p-3 flex justify-between items-center shadow-sm">
+        <div>
+          <span class="text-[10px] uppercase font-bold text-gray-400 block">Taux de change USD ⇄ CDF</span>
+          <span class="text-xs font-black text-gray-800">
+            1 USD = <span id="live-rate-display" class="text-[#008751]">...</span> FC
+          </span>
+        </div>
+        <div class="flex items-center space-x-1.5">
+          <span id="rate-badge" class="px-2 py-0.5 bg-green-100 text-green-800 font-bold text-[10px] rounded-full flex items-center gap-1">
+            <span class="w-1.5 h-1.5 rounded-full bg-green-600 animate-pulse"></span>
+            Actualisation auto
+          </span>
+        </div>
+      </div>
+
+      <div class="flex justify-between items-center pt-1">
+        <h2 id="txt-catalog" class="text-sm font-extrabold text-gray-900">Catalogue des produits</h2>
+        <span class="text-[10px] text-gray-500">Touchez un produit pour le voir en grand</span>
+      </div>
+
+      <div id="products-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4"></div>
 
       <!-- Note livraison -->
-      <div class="bg-amber-50 border border-amber-200 rounded-xl p-3.5 flex items-center space-x-3">
-        <span class="text-2xl">🚚</span>
+      <div class="bg-amber-50 border border-amber-200 rounded-xl p-3 flex items-center space-x-2.5">
+        <span class="text-xl">🚚</span>
         <p id="txt-delivery" class="text-xs text-amber-900 leading-relaxed">
-          <strong>Responsabilité de livraison :</strong> Chaque vendeur organise et assure directement la livraison de ses produits avec l'acheteur.
+          <strong>Livraison directe :</strong> Chaque vendeur assure lui-même la livraison de ses produits avec l'acheteur.
         </p>
       </div>
     </div>
 
-    <!-- 2. VUE VENDEUR (GESTION BOUTIQUE & AJOUT DE PRODUITS AVEC PHOTO) -->
-    <div id="view-seller" class="hidden space-y-6">
-      
-      <!-- CARTE ABONNEMENT DE LA BOUTIQUE -->
-      <div class="bg-white border-2 border-green-600 rounded-2xl p-5 shadow-sm">
-        <div class="flex justify-between items-start flex-wrap gap-2">
+    <!-- 2. MA BOUTIQUE (GESTION & AJOUT PRODUIT) -->
+    <div id="view-seller" class="hidden space-y-5">
+      <div class="bg-white border-2 border-green-600 rounded-2xl p-4 shadow-sm">
+        <div class="flex justify-between items-start">
           <div>
-            <span class="bg-green-100 text-[#008751] text-[10px] font-black px-2 py-0.5 rounded uppercase">
-              Abonnement Boutique
-            </span>
-            <h2 class="text-lg font-black text-gray-900 mt-1">Boutique : « Kinshasa Shopping Pro »</h2>
-            <p class="text-xs text-gray-600 mt-0.5">Propriétaire : Vendeur Certifié • Kinshasa, RDC</p>
+            <span class="bg-green-100 text-[#008751] text-[10px] font-black px-2 py-0.5 rounded uppercase">Boutique Active</span>
+            <h2 class="text-base font-black text-gray-900 mt-1">Boutique de Jires Mukundi</h2>
+            <p class="text-xs text-gray-500">Kinshasa, RDC</p>
           </div>
-          <div class="text-right">
-            <span class="text-xs text-gray-400 block">Tarif boutique</span>
-            <span class="text-xl font-black text-[#008751]">$1.00 / mois</span>
-          </div>
+          <span class="text-sm font-black text-[#008751] bg-green-50 px-2 py-1 rounded-lg">$1.00 / mois</span>
         </div>
 
-        <div class="mt-4 p-3 bg-yellow-50 border border-[#FFC72C] rounded-xl text-xs space-y-1">
-          <p class="font-extrabold text-gray-900">💡 Comment fonctionne votre abonnement :</p>
-          <p class="text-gray-700">• <strong>Mois 1 à 3 :</strong> 1 $ par mois pour toute la boutique.</p>
-          <p class="text-gray-700">• <strong>À partir du 4e mois :</strong> 15 $ par mois pour toute la boutique.</p>
-          <p class="text-[#008751] font-bold">• <strong>Vos produits :</strong> Vous pouvez publier un nombre <u>illimité</u> de produits sans rien payer en plus !</p>
+        <div class="mt-3 p-2.5 bg-yellow-50 border border-yellow-200 rounded-xl text-xs space-y-1">
+          <p class="font-bold text-gray-900">Abonnement Boutique :</p>
+          <p class="text-gray-700">• 1 $ par mois (mois 1 à 3), puis 15 $ par mois pour toute la boutique.</p>
+          <p class="text-green-800 font-bold">• Vos ajouts de produits sont 100% gratuits et illimités !</p>
         </div>
 
-        <div class="mt-4 flex items-center justify-between flex-wrap gap-2 pt-2 border-t border-gray-100">
-          <span class="text-xs font-bold text-green-700">● Statut : Boutique Active (Mois 1)</span>
-          <button onclick="alert('Connexion sécurisée aux comptes marchands :\n- Vodacom M-Pesa\n- Airtel Money\n- Orange Money\n\nPrêt pour le renouvellement mensuel !')" class="bg-[#008751] text-white px-4 py-2 rounded-lg text-xs font-bold shadow hover:bg-green-700">
-            Renouveler ma boutique (1,00 $)
-          </button>
-        </div>
+        <button onclick="alert('Connexion sécurisée aux paiements RDC :\n- Vodacom M-Pesa\n- Airtel Money\n- Orange Money\n\nPrêt pour le renouvellement !')" class="mt-3 w-full bg-[#008751] text-white py-2 rounded-lg text-xs font-bold shadow">
+          Payer le renouvellement de la boutique (1,00 $)
+        </button>
       </div>
 
-      <!-- FORMULAIRE : AJOUTER UN PRODUIT AVEC SA PHOTO -->
-      <div class="bg-white border border-gray-200 rounded-2xl p-5 shadow-sm">
-        <div class="border-b border-gray-100 pb-3 mb-4">
-          <h3 class="font-black text-base text-gray-900">Publier un nouveau produit dans ma boutique</h3>
-          <p class="text-xs text-gray-500">Ajout immédiat et gratuit inclus dans votre abonnement de boutique.</p>
-        </div>
+      <!-- Formulaire d'ajout avec Photo -->
+      <div class="bg-white border border-gray-200 rounded-2xl p-4 shadow-sm">
+        <h3 class="font-black text-sm text-gray-900 mb-1">Ajouter un produit avec sa photo</h3>
+        <p class="text-[11px] text-gray-500 mb-3">Ajout gratuit et instantané dans votre boutique.</p>
 
-        <form onsubmit="addProduct(event)" class="space-y-4 text-xs">
+        <form onsubmit="addProduct(event)" class="space-y-3 text-xs">
           <div>
             <label class="block font-bold text-gray-700 mb-1">Nom du produit *</label>
-            <input id="prod-name" type="text" required placeholder="Ex: Téléphone Samsung Galaxy A15, Sac de Riz..." class="w-full p-2.5 border rounded-lg bg-gray-50 focus:bg-white focus:border-[#008751] outline-none">
+            <input id="prod-name" type="text" required placeholder="Ex: Groupe Électrogène, Sac de Riz, Pantalon..." class="w-full p-2 border rounded-lg bg-gray-50 outline-none focus:border-[#008751]">
           </div>
 
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div class="grid grid-cols-2 gap-2">
             <div>
-              <label class="block font-bold text-gray-700 mb-1">Prix en Dollar ($ USD) *</label>
-              <input id="prod-price" type="number" step="0.01" required placeholder="Ex: 120" class="w-full p-2.5 border rounded-lg bg-gray-50 focus:bg-white focus:border-[#008751] outline-none">
+              <label class="block font-bold text-gray-700 mb-1">Prix en USD ($) *</label>
+              <input id="prod-price" type="number" step="0.01" required placeholder="Ex: 50" class="w-full p-2 border rounded-lg bg-gray-50 outline-none focus:border-[#008751]">
             </div>
             <div>
               <label class="block font-bold text-gray-700 mb-1">Catégorie *</label>
-              <select id="prod-cat" class="w-full p-2.5 border rounded-lg bg-gray-50 focus:bg-white focus:border-[#008751] outline-none">
-                <option value="Électronique">📱 Téléphones & Électronique</option>
-                <option value="Mode">👗 Mode & Habillement</option>
-                <option value="Alimentation">🌾 Alimentation & Agriculture</option>
+              <select id="prod-cat" class="w-full p-2 border rounded-lg bg-gray-50 outline-none focus:border-[#008751]">
+                <option value="Électronique">📱 Électronique</option>
+                <option value="Mode">👗 Mode & Vêtements</option>
+                <option value="Alimentation">🌾 Alimentation</option>
                 <option value="Maison">🏠 Maison & Équipements</option>
-                <option value="Véhicules">🚗 Véhicules & Pièces</option>
-                <option value="Autre">📦 Autre produit</option>
+                <option value="Autre">📦 Autre</option>
               </select>
             </div>
           </div>
 
-          <!-- PHOTO DU PRODUIT (GALERIE OU APPAREIL PHOTO) -->
+          <!-- Photo Input Direct -->
           <div>
-            <label class="block font-bold text-gray-700 mb-1">Photo du produit (Depuis votre téléphone) *</label>
-            <div class="border-2 border-dashed border-gray-300 rounded-xl p-4 text-center bg-gray-50">
-              <input id="prod-photo" type="file" accept="image/*" onchange="previewImage(event)" class="hidden">
-              <label for="prod-photo" class="cursor-pointer flex flex-col items-center">
-                <span class="text-3xl mb-1">📷</span>
-                <span class="font-bold text-[#008751]">Cliquez ici pour choisir une photo</span>
-                <span class="text-[10px] text-gray-400 mt-0.5">Prendre une photo ou choisir dans votre galerie</span>
-              </label>
-              <!-- Aperçu image -->
-              <div id="image-preview-container" class="mt-3 hidden">
-                <img id="image-preview" src="" alt="Aperçu" class="h-32 mx-auto rounded-lg object-cover border shadow">
-                <span class="text-[10px] text-green-700 font-bold block mt-1">✓ Photo sélectionnée</span>
-              </div>
+            <label class="block font-bold text-gray-700 mb-1">Photo du produit (Galerie ou Caméra) *</label>
+            <input id="prod-photo-input" type="file" accept="image/*" onchange="handleImage(event)" class="w-full p-1.5 border border-dashed border-gray-300 rounded-lg text-xs bg-gray-50">
+            <div id="preview-box" class="mt-2 hidden text-center">
+              <img id="preview-img" src="" class="h-28 mx-auto rounded-lg object-cover border">
             </div>
           </div>
 
           <div>
-            <label class="block font-bold text-gray-700 mb-1">Numéro de contact pour les commandes (WhatsApp / Appel) *</label>
-            <input id="prod-phone" type="tel" required placeholder="+243810000000" class="w-full p-2.5 border rounded-lg bg-gray-50 focus:bg-white focus:border-[#008751] outline-none">
+            <label class="block font-bold text-gray-700 mb-1">Numéro de contact (WhatsApp / Appel) *</label>
+            <input id="prod-phone" type="tel" required placeholder="+243810000000" class="w-full p-2 border rounded-lg bg-gray-50 outline-none focus:border-[#008751]">
           </div>
 
-          <button type="submit" class="w-full bg-[#008751] hover:bg-green-700 text-white font-black py-3 rounded-xl shadow-md text-sm transition">
+          <button type="submit" class="w-full bg-[#008751] text-white font-bold py-2.5 rounded-xl shadow text-xs hover:bg-green-700">
             Mettre en vente sur MK MARKET
           </button>
         </form>
       </div>
-
     </div>
 
-    <!-- 3. VUE ADMIN (PROPRIÉTAIRE) -->
-    <div id="view-admin" class="hidden space-y-5">
-      <div class="bg-red-800 text-white p-5 rounded-2xl shadow-md flex justify-between items-center">
+    <!-- 3. ADMIN (CONSOLE PROPRIÉTAIRE) -->
+    <div id="view-admin" class="hidden space-y-4">
+      <div class="bg-red-800 text-white p-4 rounded-xl shadow flex justify-between items-center">
         <div>
-          <span class="text-[9px] font-black uppercase bg-red-950 px-2.5 py-0.5 rounded">Console Propriétaire</span>
-          <h2 class="text-lg font-black mt-1">Tableau de Bord Administrateur</h2>
-          <p class="text-xs text-red-200">Gérant : Jires Mukundi (mukundijires@gmail.com)</p>
+          <span class="text-[9px] font-black uppercase bg-red-950 px-2 py-0.5 rounded">Propriétaire</span>
+          <h2 class="text-base font-black mt-1">Console Administrateur</h2>
+          <p class="text-[11px] text-red-200">mukundijires@gmail.com</p>
         </div>
         <div class="text-right">
-          <span class="text-[10px] text-red-200 block uppercase font-bold">Total Abonnements Encaissés</span>
-          <span class="text-xl font-black text-[#FFC72C]">$ 1,480.00</span>
+          <span class="text-[10px] text-red-200 block uppercase font-bold">Total Abonnements</span>
+          <span class="text-lg font-black text-[#FFC72C]">$ 1,480.00</span>
         </div>
       </div>
 
-      <div class="bg-white border border-gray-200 rounded-2xl p-4 shadow-sm">
-        <h3 class="font-extrabold text-sm mb-3 text-gray-900">Contrôle et Validation des Boutiques</h3>
+      <!-- BOÎTIER RÉGULATEUR DU TAUX DE CHANGE (ADMIN) -->
+      <div class="bg-white border-2 border-amber-400 rounded-xl p-4 shadow-sm">
+        <h3 class="font-extrabold text-xs text-gray-900 uppercase tracking-wider mb-1">⚙️ Régulateur de Taux de Change MK MARKET</h3>
+        <p class="text-[11px] text-gray-500 mb-3">Taux actuellement utilisé : <strong id="admin-current-rate" class="text-[#008751]">...</strong> FC pour 1 $</p>
+        
+        <div class="flex gap-2">
+          <input id="custom-rate-input" type="number" placeholder="Ex: 2850" class="flex-1 p-2 border rounded-lg text-xs bg-gray-50">
+          <button onclick="setCustomRate()" class="px-3 py-2 bg-amber-500 hover:bg-amber-600 text-black font-bold text-xs rounded-lg shadow">
+            Appliquer ce taux
+          </button>
+        </div>
+        <button onclick="fetchLiveExchangeRate(true)" class="mt-2 text-[10px] text-[#008751] font-bold underline">
+          🔄 Rétablir le taux officiel en direct (API automatique)
+        </button>
+      </div>
+
+      <div class="bg-white border border-gray-200 rounded-xl p-4 shadow-sm">
+        <h3 class="font-extrabold text-xs mb-3 text-gray-900">Modération des Boutiques</h3>
         <div id="shops-list" class="space-y-2 text-xs"></div>
       </div>
     </div>
 
   </main>
 
-  <!-- PIED DE PAGE -->
-  <footer class="bg-gray-950 text-gray-300 text-xs py-6 mt-8 border-t border-gray-800">
-    <div class="max-w-6xl mx-auto px-4 text-center space-y-2">
-      <div class="flex items-center justify-center space-x-2">
-        <div class="w-6 h-6 bg-[#008751] text-[#FFC72C] font-black rounded flex items-center justify-center text-xs">MK</div>
-        <span class="font-black text-white text-sm">MK MARKET</span>
+  <!-- MODAL FICHE PRODUIT -->
+  <div id="product-modal" class="fixed inset-0 bg-black/60 z-50 hidden flex items-end sm:items-center justify-center p-0 sm:p-4">
+    <div class="bg-white w-full max-w-md rounded-t-2xl sm:rounded-2xl overflow-hidden shadow-2xl p-5 space-y-3">
+      <div class="flex justify-between items-start">
+        <span id="modal-cat" class="text-[10px] uppercase font-black bg-green-100 text-[#008751] px-2 py-0.5 rounded"></span>
+        <button onclick="closeModal()" class="text-gray-400 hover:text-gray-700 text-lg font-bold">✕</button>
       </div>
-      <p id="txt-footer-motto" class="text-gray-400">« Tout pour le développement de l'Afrique. »</p>
-      <p class="text-gray-500 text-[11px]">
-        Contact administrateur : <strong class="text-[#FFC72C]">mukundijires@gmail.com</strong> • Kinshasa, RDC
-      </p>
-      <p class="text-gray-600 text-[10px] pt-2">© 2026 MK MARKET. Tous droits réservés.</p>
+
+      <img id="modal-img" src="" class="w-full h-48 object-cover rounded-xl border">
+
+      <div>
+        <h3 id="modal-title" class="text-base font-extrabold text-gray-900"></h3>
+        <p id="modal-shop" class="text-xs text-gray-500 mt-0.5"></p>
+        <span id="modal-price" class="text-xl font-black text-[#008751] block mt-2"></span>
+      </div>
+
+      <div class="pt-2 border-t flex flex-col gap-2">
+        <a id="modal-whatsapp" href="#" target="_blank" class="w-full text-center bg-green-600 text-white font-bold py-2 rounded-xl text-xs flex items-center justify-center space-x-1 shadow">
+          <span>💬 Commander sur WhatsApp</span>
+        </a>
+        <a id="modal-call" href="#" class="w-full text-center bg-gray-100 text-gray-800 font-bold py-2 rounded-xl text-xs flex items-center justify-center space-x-1">
+          <span>📞 Appeler le vendeur</span>
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- PIED DE PAGE -->
+  <footer class="bg-gray-950 text-gray-300 text-xs py-5 mt-8 border-t border-gray-800">
+    <div class="max-w-6xl mx-auto px-4 text-center space-y-1.5">
+      <div class="flex items-center justify-center space-x-1.5">
+        <div class="w-5 h-5 bg-[#008751] text-[#FFC72C] font-black rounded flex items-center justify-center text-[10px]">MK</div>
+        <span class="font-black text-white text-xs">MK MARKET</span>
+      </div>
+      <p id="txt-footer-motto" class="text-gray-400 text-[11px]">« Tout pour le développement de l'Afrique. »</p>
+      <p class="text-gray-500 text-[10px]">Contact propriétaire : mukundijires@gmail.com • Kinshasa, RDC</p>
     </div>
   </footer>
 
-  <!-- LOGIQUE APPLICATIVE -->
+  <!-- SCRIPT AVEC API DE TAUX DE CHANGE EN DIRECT -->
   <script>
     let currentCurrency = 'USD';
-    const rate = 2800; // 1 USD = 2800 CDF
+    let rate = 2800; // Taux de départ par défaut
     let cart = 0;
-    let selectedImageBase64 = null;
+    let tempImage = null;
 
     const dict = {
-      fr: { motto: "Tout pour le développement de l'Afrique.", catalog: "Tous les produits disponibles", delivery: "Responsabilité de livraison : Chaque vendeur organise et assure directement la livraison de ses produits avec l'acheteur." },
-      en: { motto: "All for the development of Africa.", catalog: "All available products", delivery: "Delivery responsibility: Each seller directly organizes delivery with the buyer." },
-      ln: { motto: "Nyonso mpo na botomboli ya Afrika.", catalog: "Biloko nyonso ezali mpo na kosomba", delivery: "Mokumba ya kotinda : Moteki moko nde akotindela yo biloko na boyokani na yo." },
-      sw: { motto: "Yote kwa ajili ya maendeleo ya Afrika.", catalog: "Bidhaa zote zilizopo", delivery: "Wajibu wa kusafirisha : Kila muuzaji anahusika kusafirisha bidhaa zake moja kwa moja." },
-      lu: { motto: "Bionso bua didiunda dia Afrike.", catalog: "Bintu bionso bidi bua kusumba", delivery: "Bujitu bua difila : Mupanyi nkayende ke ufikisha bintu ku diumvuangana ne musumbi." },
-      kg: { motto: "Bima nionso sambu na kutomisa Afrika.", catalog: "Bima nionso kele samu na kusumba", delivery: "Kizalu ya kutinda : Mutekisi mosi mpenza ke wakana ti musumbi samu na kunata bima." }
+      fr: { motto: "Tout pour le développement de l'Afrique.", catalog: "Catalogue des produits", delivery: "Livraison directe : Chaque vendeur assure lui-même la livraison de ses produits avec l'acheteur." },
+      en: { motto: "All for the development of Africa.", catalog: "Products Catalog", delivery: "Direct delivery: Each seller directly handles delivery with the buyer." },
+      ln: { motto: "Nyonso mpo na botomboli ya Afrika.", catalog: "Biloko nyonso ezali mpo na kosomba", delivery: "Motindeli : Moteki moko nde akotindela yo biloko na boyokani na yo." },
+      sw: { motto: "Yote kwa ajili ya maendeleo ya Afrika.", catalog: "Bidhaa Zote Zilizopo", delivery: "Wajibu wa usafirishaji : Kila muuzaji anahusika kusafirisha bidhaa zake." },
+      lu: { motto: "Bionso bua didiunda dia Afrike.", catalog: "Bintu bionso bidi bua kusumba", delivery: "Bujitu bua difila : Mupanyi nkayende ke ufikisha bintu ku diumvuangana." },
+      kg: { motto: "Bima nionso sambu na kutomisa Afrika.", catalog: "Bima nionso kele samu na kusumba", delivery: "Kizalu ya kutinda : Mutekisi mosi mpenza ke wakana ti musumbi." }
     };
 
-    // Produits avec de VRAIES photos
     let products = [
-      {
-        id: 1,
-        name: "Groupe Électrogène Silencieux 5kVA",
-        price: 650,
-        shop: "Kinshasa Shopping Pro",
-        phone: "+243810000001",
-        cat: "Maison & Équipements",
-        image: "https://images.unsplash.com/photo-1581092160607-ee22621dd758?w=500&auto=format&fit=crop&q=60"
-      },
-      {
-        id: 2,
-        name: "Lot de Pagnes Wax Authentiques (6 yards)",
-        price: 45,
-        shop: "Lubumbashi Mode & Wax",
-        phone: "+243990000002",
-        cat: "Mode & Habillement",
-        image: "https://images.unsplash.com/photo-1528459801416-a9e53bbf4e17?w=500&auto=format&fit=crop&q=60"
-      },
-      {
-        id: 3,
-        name: "Café Pur Arabica Kivu (Sac de 5kg)",
-        price: 35,
-        shop: "Goma Agro-Alimentaire",
-        phone: "+243820000003",
-        cat: "Alimentation & Agriculture",
-        image: "https://images.unsplash.com/photo-1559056199-641a0ac8b55e?w=500&auto=format&fit=crop&q=60"
-      }
+      { id: 1, name: "Groupe Électrogène Silencieux 5kVA", price: 650, shop: "Kinshasa Tech", phone: "+243810000001", cat: "Maison", image: "https://images.unsplash.com/photo-1581092160607-ee22621dd758?w=500&auto=format&fit=crop&q=60" },
+      { id: 2, name: "Lot de Pagnes Wax Authentiques (6 yards)", price: 45, shop: "Lubumbashi Mode", phone: "+243990000002", cat: "Mode", image: "https://images.unsplash.com/photo-1528459801416-a9e53bbf4e17?w=500&auto=format&fit=crop&q=60" },
+      { id: 3, name: "Café Pur Arabica Kivu (Sac de 5kg)", price: 35, shop: "Goma Agro", phone: "+243820000003", cat: "Alimentation", image: "https://images.unsplash.com/photo-1559056199-641a0ac8b55e?w=500&auto=format&fit=crop&q=60" }
     ];
 
     let shops = [
-      { id: 1, name: "Kinshasa Shopping Pro", phone: "+243810000001", status: "APPROUVÉ", fee: 1 },
-      { id: 2, name: "Lubumbashi Mode & Wax", phone: "+243990000002", status: "EN ATTENTE", fee: 1 },
-      { id: 3, name: "Goma Agro-Alimentaire", phone: "+243820000003", status: "SUSPENDU", fee: 15 }
+      { id: 1, name: "Kinshasa Tech", phone: "+243810000001", status: "APPROUVÉ" },
+      { id: 2, name: "Lubumbashi Mode", phone: "+243990000002", status: "EN ATTENTE" },
+      { id: 3, name: "Goma Agro", phone: "+243820000003", status: "SUSPENDU" }
     ];
 
-    function previewImage(event) {
-      const file = event.target.files[0];
-      if (file) {
-        const reader = new FileReader();
-        reader.onload = function(e) {
-          selectedImageBase64 = e.target.result;
-          document.getElementById('image-preview').src = selectedImageBase64;
-          document.getElementById('image-preview-container').classList.remove('hidden');
-        };
-        reader.readAsDataURL(file);
+    // FONCTION API TAUX AUTOMATIQUE EN DIRECT
+    async function fetchLiveExchangeRate(manualNotice = false) {
+      try {
+        const response = await fetch('https://open.er-api.com/v6/latest/USD');
+        const data = await response.json();
+        if (data && data.rates && data.rates.CDF) {
+          rate = Math.round(data.rates.CDF);
+          updateRateUI();
+          if (manualNotice) alert("✅ Taux officiel en direct synchronisé avec succès : 1$ = " + rate + " FC");
+        }
+      } catch (err) {
+        console.log("Erreur de connexion API, conservation du taux actuel:", rate);
+        updateRateUI();
       }
     }
 
-    function renderProducts() {
-      document.getElementById('products-grid').innerHTML = products.map(p => `
-        <div class="bg-white border border-gray-200 rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition flex flex-col justify-between">
-          <div class="h-44 w-full bg-gray-100 overflow-hidden relative">
-            <img src="${p.image}" alt="${p.name}" class="w-full h-full object-cover">
-            <span class="absolute top-2 left-2 text-[9px] uppercase font-black bg-white/95 text-[#008751] px-2 py-0.5 rounded shadow">
-              ${p.cat}
-            </span>
-          </div>
-          <div class="p-4 flex-1 flex flex-col justify-between">
-            <div>
-              <h3 class="font-bold text-sm text-gray-900 leading-snug">${p.name}</h3>
-              <p class="text-[11px] text-gray-500 mt-1">Boutique : <strong class="text-gray-700">${p.shop}</strong></p>
-            </div>
-            <div class="mt-4 pt-3 border-t border-gray-100 flex items-center justify-between">
-              <span class="text-sm font-black text-[#008751]">
-                ${currentCurrency === 'USD' ? '$' + p.price.toFixed(2) : (p.price * rate).toLocaleString() + ' FC'}
-              </span>
-              <div class="flex space-x-1.5">
-                <a href="tel:${p.phone}" class="px-2.5 py-1.5 bg-gray-100 rounded-lg text-[11px] font-bold text-gray-800 hover:bg-gray-200">📞 Appeler</a>
-                <button onclick="cart++; document.getElementById('cart-badge').innerText=cart;" class="px-3 py-1.5 bg-[#008751] hover:bg-green-700 text-white rounded-lg text-[11px] font-bold shadow-sm">
-                  Ajouter
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      `).join('');
-    }
-
-    function renderShops() {
-      document.getElementById('shops-list').innerHTML = shops.map(s => `
-        <div class="flex justify-between items-center p-3 bg-gray-50 rounded-xl border border-gray-200">
-          <div>
-            <strong class="text-gray-900 text-xs">${s.name}</strong> <span class="text-gray-500">(${s.phone})</span>
-            <span class="block text-[10px] text-gray-500 mt-0.5">Abonnement boutique : $${s.fee}/mois • Statut : <strong class="${s.status === 'APPROUVÉ' ? 'text-green-700' : s.status === 'SUSPENDU' ? 'text-red-700' : 'text-yellow-700'}">${s.status}</strong></span>
-          </div>
-          <div class="space-x-1">
-            ${s.status === 'EN ATTENTE' ? `<button onclick="s.status='APPROUVÉ'; renderShops();" class="px-2.5 py-1 bg-[#008751] text-white rounded-lg font-bold text-[10px]">Approuver</button>` : ''}
-            ${s.status === 'APPROUVÉ' ? `<button onclick="s.status='SUSPENDU'; renderShops();" class="px-2.5 py-1 bg-red-600 text-white rounded-lg font-bold text-[10px]">Suspendre</button>` : ''}
-            ${s.status === 'SUSPENDU' ? `<button onclick="s.status='APPROUVÉ'; renderShops();" class="px-2.5 py-1 bg-blue-600 text-white rounded-lg font-bold text-[10px]">Réactiver</button>` : ''}
-          </div>
-        </div>
-      `).join('');
-    }
-
-    function setCurrency(curr) {
-      currentCurrency = curr;
-      document.getElementById('btn-usd').className = curr === 'USD' ? 'px-1.5 py-0.5 rounded bg-[#FFC72C] text-black font-bold' : 'px-1.5 py-0.5 rounded text-white font-bold';
-      document.getElementById('btn-cdf').className = curr === 'CDF' ? 'px-1.5 py-0.5 rounded bg-[#FFC72C] text-black font-bold' : 'px-1.5 py-0.5 rounded text-white font-bold';
+    function updateRateUI() {
+      document.getElementById('live-rate-display').innerText = rate.toLocaleString();
+      document.getElementById('admin-current-rate').innerText = rate.toLocaleString();
       renderProducts();
     }
 
-    function changeLanguage(langKey) {
-      const l = dict[langKey];
-      if (l) {
-        document.getElementById('txt-motto').innerText = l.motto;
-        document.getElementById('txt-footer-motto').innerText = '« ' + l.motto + ' »';
-        document.getElementById('txt-catalog').inn
+    function setCustomRate() {
+      const val = parseFloat(document.getElementById('custom-rate-input').value);
+      if (val && val > 0) {
+        rate = Math.round(val);
+        updateRateUI();
+        alert("✅ Taux personnalisé appliqué pour tout MK MARKET : 1$ = " + rate + " FC");
+      }
+    }
+
+    function renderProducts(list = products) {
+      document.getElementById('products-grid').innerHTML = list.map(p => `
+        <div class="bg-white border border-gray-200 rounded-xl overflow-hidden shadow-sm flex flex-col justify-between cursor-pointer" onclick="openModal(${p.id})">
+          <div class="h-40 bg-gray-100 overflow-hidden relative">
+            <img src="${p.image}" class="w-full h-full object-cover">
+            <span class="absolute top-2 left-2 text-[9px] uppercase font-bold bg-white text-[#008751] px-2 py-0.5 rounded shadow">${p.cat}</span>
+          </div>
+          <div class="p-3 flex-1 flex flex-col justify-between">
+            <div>
+              <h3 class="font-bold text-xs text-gray-900">${p.name}</h3>
+              <p class="text-[10px] text-gray-500 mt-0.5">Boutique : <strong>${p.shop}</strong></p>
+            </div>
+            <div class="mt-3 pt-2 border-t flex items-center justify-between">
+              <span class="text-xs font-black text-[#008751]">
+                ${currentCurrency === 'USD' ? '$' + p.price.toFixed(2) : (p.price * rate).toLocaleString() + ' FC'}
+              </span>
+              <button onclick="event.stopPropagation(); cart++; document.getElementById('cart-badge').innerText=cart;" class="px-2.5 py-1 bg-[#008751] text-white rounded text-[10px] font-bold">
+                Ajouter
+              </button>
+            </div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function openModal(id) {
+      const p = products.find(x => x.id === id);
+      if (!p) return;
+      document.getElementById('modal-cat').innerText = p.cat;
+      document.getElementById('modal-img').src = p.image;
+      document.getElementById('modal-title').innerText = p.name;
+      document.getElementById('modal-shop').innerText = 'Boutique : ' + p.shop;
+      document.getElementBy
