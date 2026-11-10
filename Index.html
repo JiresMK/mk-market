@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>MK MARKET - Tout pour le développement de l'Afrique</title>
+  <meta name="theme-color" content="#008751">
+  
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, sans-serif; }
+    body { background-color: #f4f6f8; color: #111827; min-height: 100vh; display: flex; flex-direction: column; }
+    .container { max-width: 1050px; margin: 0 auto; padding: 0 14px; width: 100%; }
+    .btn { display: inline-block; font-weight: 700; padding: 9px 15px; border-radius: 8px; cursor: pointer; border: none; text-align: center; text-decoration: none; font-size: 12px; }
+    .btn-green { background-color: #008751; color: #ffffff; }
+    .btn-yellow { background-color: #ffc72c; color: #111827; }
+    .btn-gray { background-color: #e5e7eb; color: #374151; }
+    .btn-admin { background-color: #dc2626; color: #ffffff; }
+    .card { background: #ffffff; border-radius: 12px; border: 1px solid #e5e7eb; padding: 14px; margin-bottom: 12px; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04); }
+    .header-bar { background: #ffffff; border-bottom: 1px solid #e5e7eb; position: sticky; top: 0; z-index: 50; padding: 8px 0; }
+    .products-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 14px; margin-top: 10px; }
+    .product-card { background: #ffffff; border: 1px solid #e5e7eb; border-radius: 12px; overflow: hidden; display: flex; flex-direction: column; cursor: pointer; }
+    .product-img { width: 100%; height: 165px; object-fit: cover; background-color: #f3f4f6; }
+    .product-info { padding: 12px; flex: 1; display: flex; flex-direction: column; justify-content: space-between; }
+    .form-group { margin-bottom: 12px; }
+    .form-group label { display: block; font-size: 11px; font-weight: 700; margin-bottom: 4px; color: #374151; }
+    .form-control { width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 8px; font-size: 13px; outline: none; background: #ffffff; }
+    .form-control:focus { border-color: #008751; }
+    .shop-underline { text-decoration: underline; font-weight: 800; color: #008751; }
+  </style>
+</head>
+<body>
+
+  <!-- BANDEAU TOP -->
+  <div style="background-color: #00663d; color: #ffffff; padding: 5px 0; font-size: 11px;">
+    <div class="container" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 4px;">
+      <div style="display: flex; align-items: center; gap: 6px;">
+        <span style="width: 7px; height: 7px; border-radius: 50%; background: #ffc72c;"></span>
+        <span id="txt-motto" style="font-weight: 600;">Tout pour le développement de l'Afrique.</span>
+      </div>
+      <div style="display: flex; align-items: center; gap: 6px;">
+        <div style="background: rgba(0, 0, 0, 0.25); border-radius: 4px; padding: 2px;">
+          <button id="btn-usd" onclick="setCurrency('USD')" style="background: #ffc72c; color: #111827; border: none; padding: 2px 6px; border-radius: 3px; font-weight: 700; font-size: 10px; cursor: pointer;">USD ($)</button>
+          <button id="btn-cdf" onclick="setCurrency('CDF')" style="background: transparent; color: #ffffff; border: none; padding: 2px 6px; border-radius: 3px; font-weight: 700; font-size: 10px; cursor: pointer;">CDF (FC)</button>
+        </div>
+        <select onchange="changeLanguage(this.value)" style="background: rgba(0, 0, 0, 0.25); color: #ffffff; border: none; padding: 3px 5px; border-radius: 4px; font-size: 10px; cursor: pointer; outline: none;">
+          <option value="fr">🇫🇷 FR</option>
+          <option value="en">🇬🇧 EN</option>
+          <option value="ln">🇨🇩 LN</option>
+          <option value="sw">🇹🇿 SW</option>
+          <option value="lu">🇨🇩 LU</option>
+          <option value="kg">🇨🇩 KG</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <!-- NAVIGATION -->
+  <div class="header-bar">
+    <div class="container" style="display: flex; justify-content: space-between; align-items: center; gap: 6px;">
+      <div onclick="showTab('market')" style="display: flex; align-items: center; gap: 6px; cursor: pointer; flex-shrink: 0;">
+        <div style="width: 32px; height: 32px; background: #008751; border-radius: 6px; display: flex; align-items: center; justify-content: center; color: #ffc72c; font-weight: 900; font-size: 14px;">
+          MK
+        </div>
+        <div>
+          <strong style="font-size: 15px; color: #111827; display: block; line-height: 1;">MK MARKET</strong>
+          <span style="font-size: 8px; font-weight: 800; color: #008751;">RDC • AFRIQUE</span>
+        </div>
+      </div>
+      <div style="display: flex; gap: 4px; align-items: center;">
+        <button id="tab-market" onclick="showTab('market')" class="btn btn-green" style="padding: 6px 9px;">Marketplace</button>
+        <button id="tab-seller" onclick="showTab('seller')" class="btn btn-gray" style="padding: 6px 9px;">Ma Boutique</button>
+        <button id="tab-profile" onclick="showTab('profile')" class="btn btn-gray" style="padding: 6px 9px;">Mon Profil</button>
+        <div onclick="showTab('cart')" style="background: #f3f4f6; padding: 5px 8px; border-radius: 6px; font-size: 13px; cursor: pointer; position: relative;">
+          🛒 <span id="cart-count-badge" style="position: absolute; top: -4px; right: -4px; background: #008751; color: #ffffff; border-radius: 50%; font-size: 9px; width: 15px; height: 15px; display: flex; align-items: center; justify-content: center; font-weight: 900;">0</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CONTENU -->
+  <div class="container" style="margin-top: 12px; flex: 1;">
+
+    <!-- 1. MARKETPLACE -->
+    <div id="view-market">
+      <div style="background: linear-gradient(135deg, #008751, #005a36); color: #ffffff; border-radius: 14px; padding: 20px 16px; margin-bottom: 12px; box-shadow: 0 4px 10px rgba(0, 135, 81, 0.2);">
+        <div id="txt-welcome-badge" style="display: inline-block; background: #ffc72c; color: #111827; font-size: 13px; font-weight: 900; padding: 5px 12px; border-radius: 6px; text-transform: uppercase; letter-spacing: 1.5px; box-shadow: 0 2px 4px rgba(0,0,0,0.15); margin-bottom: 8px;">
+          ✨ BIENVENUE SUR MK MARKET ✨
+        </div>
+        <h1 id="txt-hero-title" style="font-size: 20px; font-weight: 900; margin-top: 4px; line-height: 1.25;">Achetez et vendez facilement en Afrique</h1>
+        <p id="txt-hero-sub" style="font-size: 11px; color: #d1fae5; margin-top: 4px;">Tous les vendeurs et produits vérifiés réunis sur une seule plateforme.</p>
+        <button id="txt-create-btn" onclick="showTab('seller')" class="btn btn-yellow" style="margin-top: 12px; font-size: 13px; padding: 9px 18px; box-shadow: 0 2px 4px rgba(0,0,0,0.2);">Créer ma boutique</button>
+      </div>
+
+      <div class="card" style="padding: 8px; margin-bottom: 12px;">
+        <input id="search-input" onkeyup="filterProducts()" type="text" placeholder="🔍 Rechercher un produit, un vendeur..." class="form-control" style="border: none;">
+      </div>
+
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+        <h2 id="txt-catalog" style="font-size: 14px; font-weight: 800;">Tous les produits disponibles</h2>
+        <span style="font-size: 10px; color: #6b7280;">Appuyez sur un produit pour voir la boutique</span>
+      </div>
+
+      <div id="products-grid" class="products-grid"></div>
+
+      <div class="card" style="background: #fffbeb; border-color: #fde68a; margin-top: 20px; display: flex; gap: 8px; align-items: center;">
+        <span style="font-size: 20px;">🚚</span>
+        <p style="font-size: 11px; color: #92400e; line-height: 1.3;">
+          <strong id="txt-delivery-title">Livraison directe :</strong> 
+          <span id="txt-delivery-text">Chaque vendeur assure lui-même la livraison de ses produits avec l'acheteur. MK MARKET met en relation directe.</span>
+        </p>
+      </div>
+
+      <div class="card" style="display: flex; justify-content: space-between; align-items: center; padding: 10px; margin-top: 10px; background: #fffdf5; border-color: #fef08a;">
+        <div>
+          <span style="font-size: 9px; color: #854d0e; font-weight: 700; text-transform: uppercase; display: block;">Taux Indicatif BCC (Banque Centrale du Congo)</span>
+          <strong style="font-size: 13px; color: #111827;">1 USD = <span id="rate-display-market" style="color: #008751; font-weight: 900;">2 850 FC</span></strong>
+        </div>
+        <span style="background: #ecfdf5; color: #065f46; font-size: 9px; font-weight: 800; padding: 2px 6px; border-radius: 8px;">● Officiel BCC</span>
+      </div>
+    </div>
+
+    <!-- DÉTAIL PRODUIT -->
+    <div id="view-shop-detail" style="display: none;">
+      <button onclick="showTab('market')" class="btn btn-gray" style="margin-bottom: 12px;">← Retour au Marché (Marketplace)</button>
+      <div class="card" id="detail-product-card"></div>
+    </div>
+    <!-- 2. MA BOUTIQUE -->
+    <div id="view-seller" style="display: none;">
+      <div id="seller-step-invite" class="card" style="text-align: center; padding: 24px;">
+        <span style="font-size: 36px;">🏪</span>
+        <h2 style="font-size: 18px; font-weight: 900; margin-top: 6px;">Vous n'avez pas encore de boutique</h2>
+        <p style="font-size: 12px; color: #4b5563; margin: 4px auto 14px; max-width: 380px;">Ouvrez votre espace commercial en 1 minute et commencez à vendre vos produits à des milliers de clients en RDC et en Afrique.</p>
+        <button onclick="openShopRegistrationForm()" class="btn btn-yellow" style="font-size: 14px; padding: 11px 22px;">Créer ma boutique</button>
+      </div>
+
+      <div id="seller-step-form" class="card" style="display: none; border: 2px solid #008751;">
+        <span style="background: #ffc72c; color: #111827; font-size: 9px; font-weight: 800; padding: 2px 6px; border-radius: 4px; text-transform: uppercase;">Formulaire d'ouverture</span>
+        <h2 style="font-size: 16px; font-weight: 900; margin-top: 4px;">Créer ma Boutique sur MK MARKET</h2>
+        <p style="font-size: 11px; color: #4b5563; margin-top: 2px; margin-bottom: 12px;">Remplissez vos informations commerciales.</p>
+
+        <form onsubmit="handleCreateShopNow(event)">
+          <div class="form-group"><label>Nom de votre boutique *</label><input id="input-shop-name" type="text" required placeholder="Ex: Maison Kabasele" class="form-control"></div>
+          <div class="form-group"><label>Nom du Gérant / Propriétaire *</label><input id="input-shop-owner" type="text" required placeholder="Ex: Jean Kabasele" class="form-control"></div>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+            <div class="form-group"><label>Ville en RDC *</label><input id="input-shop-city" type="text" required placeholder="Ex: Kinshasa" class="form-control"></div>
+            <div class="form-group"><label>Numéro WhatsApp / Appel *</label><input id="input-shop-phone" type="tel" required placeholder="+243..." class="form-control"></div>
+          </div>
+          <div style="background: #fefce8; border: 1px solid #fef08a; padding: 10px; border-radius: 8px; margin: 10px 0; font-size: 11px;">
+            <strong style="color: #854d0e;">💳 Abonnement de Lancement : 1,00 $ / mois</strong>
+            <p style="color: #4b5563; margin-top: 2px;">(Mois 1 à 3 : 1 $ / mois, puis 15 $ / mois à partir du 4e mois).</p>
+            <p style="color: #166534; font-weight: 700; margin-top: 4px;">Règlement sécurisé : M-Pesa • Airtel Money • Orange Money</p>
+          </div>
+          <button type="submit" class="btn btn-green" style="width: 100%; padding: 12px; font-size: 13px;">Payer 1,00 $ et Ouvrir ma boutique</button>
+        </form>
+      </div>
+
+      <div id="seller-step-dashboard" style="display: none;">
+        <div class="card" style="border: 2px solid #008751;">
+          <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 8px;">
+            <div>
+              <span style="background: #dcfce7; color: #15803d; font-size: 9px; font-weight: 800; padding: 2px 6px; border-radius: 4px; text-transform: uppercase;">Ma Boutique Ouverte</span>
+              <h2 id="dash-shop-name" style="font-size: 17px; font-weight: 900; margin-top: 4px; color: #111827;"></h2>
+              <p id="dash-shop-info" style="font-size: 11px; color: #6b7280; margin-top: 2px;"></p>
+            </div>
+            <button onclick="handleEditShopInfo()" class="btn btn-gray" style="font-size: 11px; padding: 6px 10px;">✏️ Modifier mes informations</button>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3 style="font-size: 14px; font-weight: 800; margin-bottom: 2px;">Ajouter un nouveau produit</h3>
+          <p style="font-size: 11px; color: #6b7280; margin-bottom: 12px;">Ce produit sera exposé sur la Marketplace avec le nom de votre boutique souligné.</p>
+
+          <form onsubmit="handleSellerAddProductDirect(event)">
+            <div class="form-group"><label>Nom du produit *</label><input id="prod-add-title" type="text" required placeholder="Ex: Sac de Riz 25kg" class="form-control"></div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+              <div class="form-group"><label>Prix en USD ($) *</label><input id="prod-add-price" type="number" step="0.01" required placeholder="Ex: 40" class="form-control"></div>
+              <div class="form-group"><label>Catégorie *</label><select id="prod-add-category" class="form-control"><option value="Électronique">📱 Électronique</option><option value="Mode">👗 Mode & Vêtements</option><option value="Alimentation">🌾 Alimentation & Agriculture</option><option value="Maison">🏠 Maison & Équipement</option><option value="Autre">📦 Autre</option></select></div>
+            </div>
+            <div class="form-group"><label>Photo du produit (Galerie ou Caméra) *</label><input type="file" accept="image/*" onchange="uploadProductPhoto(event)" class="form-control" style="padding: 6px;"></div>
+            <button type="submit" class="btn btn-green" style="width: 100%; padding: 11px; font-size: 13px;">Mettre en vente sur le Marché</button>
+          </form>
+        </div>
+
+        <div class="card">
+          <h3 style="font-size: 14px; font-weight: 800; margin-bottom: 8px;">Mes produits en vente dans ma boutique</h3>
+          <div id="seller-my-products-list" style="display: flex; flex-direction: column; gap: 10px;"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 3. MON PROFIL -->
+    <div id="view-profile" style="display: none;">
+      <div id="profile-content-box"></div>
+    </div>
+
+    <!-- 4. LE PANIER -->
+    <div id="view-cart" style="display: none;">
+      <div class="card">
+        <h2 style="font-size: 16px; font-weight: 900; margin-bottom: 4px;">Mon Panier & Commandes</h2>
+        <div id="cart-items-list"></div>
+      </div>
+    </div>
+
+    <!-- 5. CONSOLE PATRON (?boss=jires) -->
+    <div id="view-admin-secret" style="display: none;">
+      <div id="boss-auth-screen" class="card" style="border: 2px solid #dc2626; max-width: 400px; margin: 30px auto; text-align: center; padding: 24px;">
+        <span style="font-size: 36px;">🔐</span>
+        <h2 style="font-size: 17px; font-weight: 900; color: #991b1b; margin-top: 6px;">Espace Réservé au Propriétaire</h2>
+        <p style="font-size: 11px; color: #4b5563; margin-top: 2px;">Compte administrateur :</p>
+        <p style="font-size: 12px; font-weight: 800; color: #111827; margin: 2px 0 16px;">mukundijires@gmail.com</p>
+
+        <form onsubmit="handleBossLogin(event)">
+          <div class="form-group" style="text-align: left;">
+            <label>Mot de passe secret propriétaire :</label>
+            <input id="boss-password-field" type="password" required placeholder="Entrez votre mot de passe" class="form-control" style="text-align: center; font-size: 16px; font-weight: 900; letter-spacing: 2px;">
+          </div>
+          <button type="submit" class="btn btn-admin" style="width: 100%; padding: 11px; font-size: 13px;">Déverrouiller ma Console</button>
+        </form>
+      </div>
+
+      <div id="boss-dashboard-screen" style="display: none;">
+        <div style="background: #991b1b; color: #ffffff; border-radius: 10px; padding: 12px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
+          <div>
+            <span style="background: #450a0a; font-size: 9px; font-weight: 800; padding: 2px 6px; border-radius: 4px;">Console Propriétaire Active</span>
+            <h2 style="font-size: 15px; font-weight: 900; margin-top: 2px;">MK MARKET (Jires Mukundi)</h2>
+          </div>
+          <button onclick="closeBossConsole()" class="btn btn-gray" style="font-size: 10px; padding: 4px 8px;">Fermer et Verrouiller</button>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px;">
+          <div class="card" style="margin: 0; background: #ecfdf5; border-color: #a7f3d0; padding: 10px;">
+            <span style="font-size: 10px; color: #065f46; font-weight: 700; display: block;">Total Abonnements Encaissés</span>
+            <strong id="stat-revenue" style="font-size: 20px; color: #008751; font-weight: 900;">$ 0.00</strong>
+          </div>
+          <div class="card" style="margin: 0; background: #eff6ff; border-color: #bfdbfe; padding: 10px;">
+            <span style="font-size: 10px; color: #1e40af; font-weight: 700; display: block;">Boutiques Actives</span>
+            <strong id="stat-active" style="font-size: 20px; color: #2563eb; font-weight: 900;">0</strong>
+          </div>
+        </div>
+
+        <!-- RÉGULATEUR DE TAUX MODIFIABLE -->
+        <div class="card" style="border: 2px solid #ffc72c; background: #fffdf5;">
+          <h3 style="font-size: 14px; font-weight: 900; color: #111827;">⚙️ Régulateur Propriétaire du Taux de Change</h3>
+          <p style="font-size: 11px; color: #4b5563; margin-top: 2px; margin-bottom: 8px;">Taux actuellement actif : <strong id="rate-display-admin" style="color: #008751; font-size: 16px;">2 850 FC</strong></p>
+          <div style="display: flex; gap: 6px; margin-bottom: 8px;">
+            <input id="boss-rate-input" type="number" class="form-control" style="font-size: 15px; font-weight: 800; color: #008751; max-width: 180px;">
+            <button onclick="saveBossRate()" class="btn btn-green">Sauvegarder ce taux</button>
+          </div>
+          <div style="display: flex; gap: 4px; flex-wrap: wrap;">
+            <button onclick="saveBossRatePreset(2800)" class="btn btn-gray" style="font-size: 10px; padding: 4px 8px;">Mettre à 2 800 FC</button>
+            <button onclick="saveBossRatePreset(2850)" class="btn btn-gray" style="font-size: 10px; padding: 4px 8px;">Mettre à 2 850 FC</button>
+            <button onclick="saveBossRatePreset(2900)" class="btn btn-gray" style="font-size: 10px; padding: 4px 8px;">Mettre à 2 900 FC</button>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3 style="font-size: 13px; font-weight: 800; margin-bottom: 8px;">Demandes d'ouverture de boutiques & Validations</h3>
+          <div id="admin-shops-list" style="display: flex; flex-direction: column; gap: 8px;"></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- PIED DE PAGE -->
+  <div style="background: #111827; color: #9ca3af; font-size: 10px; padding: 16px 0; margin-top: 24px; text-align: center;">
+    <div class="container">
+      <strong style="color: #ffffff; font-size: 12px; display: block; margin-bottom: 2px;">MK MARKET</strong>
+      <p style="color: #d1d5db;">« Tout pour le développement de l'Afrique. »</p>
+      <p style="margin-top: 4px; color: #6b7280;">Plateforme commerciale panafricaine • Kinshasa, RDC</p>
+      <p style="margin-top: 6px; color: #4b5563;">© 2026 MK MARKET. Tous droits réservés.</p>
+    </div>
+  </div>
+    <!-- JAVASCRIPT COMPLET DU SITE MK MARKET -->
+  <script>
+    function safeGet(key, fallback) {
+      try {
+        const val = localStorage.getItem(key);
+        return val ? JSON.parse(val) : fallback;
+      } catch (err) { return fallback; }
+    }
+
+    function safeSet(key, val) {
+      try { localStorage.setItem(key, JSON.stringify(val)); } catch (err) {}
+    }
+
+    let currentCurrency = 'USD';
+    let rate = safeGet('mk_rate', 2850);
+    let cart = [];
+    let tempImage = null;
+
+    const dict = {
+      fr: { motto: "Tout pour le développement de l'Afrique.", catalog: "Tous les produits disponibles", search: "🔍 Rechercher un produit, un vendeur...", createBtn: "Créer ma boutique", welcomeBadge: "✨ BIENVENUE SUR MK MARKET ✨", heroTitle: "Achetez et vendez facilement en Afrique", heroSub: "Tous les vendeurs et produits vérifiés réunis sur une seule plateforme.", deliveryTitle: "Livraison directe :", deliveryText: "Chaque vendeur assure lui-même la livraison de ses produits avec l'acheteur. MK MARKET met en relation directe." },
+      en: { motto: "All for the development of Africa.", catalog: "All available products", search: "🔍 Search products, stores...", createBtn: "Open my store", welcomeBadge: "✨ WELCOME TO MK MARKET ✨", heroTitle: "Buy and sell easily across Africa", heroSub: "All verified sellers and products gathered on a single platform.", deliveryTitle: "Direct delivery:", deliveryText: "Each seller directly arranges delivery with the buyer. MK MARKET connects you directly." },
+      ln: { motto: "Nyonso mpo na botomboli ya Afrika.", catalog: "Biloko nyonso ezali mpo na kosomba", search: "🔍 Luka eloko, magazini...", createBtn: "Fungola magazini na ngai", welcomeBadge: "✨ BOYEI BOLAMU NA MK MARKET ✨", heroTitle: "Somba mpe teka na bopete na Afrika", heroSub: "Bateki nyonso ya solo basangisami esika moko.", deliveryTitle: "Kotinda biloko :", deliveryText: "Moteki moko nde akotindela yo biloko na boyokani na yo. MK MARKET ezali kokangisa bino." },
+      sw: { motto: "Yote kwa ajili ya maendeleo ya Afrika.", catalog: "Bidhaa zote zilizopo", search: "🔍 Tafuta bidhaa, duka...", createBtn: "Fungua duka langu", welcomeBadge: "✨ KARIBU KWENYE MK MARKET ✨", heroTitle: "Nunua na uza kwa urahisi Afrika", heroSub: "Wauzaji wote walioidhinishwa wamekusanywa sehemu moja.", deliveryTitle: "Usafirishaji wa moja kwa moja :", deliveryText: "Kila muuzaji anahusika kusafirisha bidhaa zake moja kwa moja kwa mnunuzi. MK MARKET inawaunganisha." },
+      lu: { motto: "Bionso bua didiunda dia Afrike.", catalog: "Bintu bionso bidi bua kusumba", search: "🔍 Keba tshintu, tshisalu...", createBtn: "Kunzula tshisalu tshianyi", welcomeBadge: "✨ TSHIENDELELE TSHIA MK MARKET ✨", heroTitle: "Sumba ne pana bintu mu bupepele mu Afrike", heroSub: "Bapanyi bonso badi basangishibue muaba umue.", deliveryTitle: "Difila dia bintu :", deliveryText: "Mupanyi nkayende ke ufikisha bintu ku diumvuangana ne musumbi." },
+      kg: { motto: "Bima nionso sambu na kutomisa Afrika.", catalog: "Bima nionso kele samu na kusumba", search: "🔍 Sosa kima, kizalu...", createBtn: "Kangula duka na mono", welcomeBadge: "✨ MBOTE NA MK MARKET ✨", heroTitle: "Sumba mpe tekisa na pete na Afrika", heroSub: "Batekisi nionso me vukana kisika mosi.", deliveryTitle: "Kutinda bima :", deliveryText: "Mutekisi mosi mpenza ke wakana ti musumbi samu na kunata bima." }
+    };
+
+    const defaultProducts = [
+      { id: 1, shopId: 1, shopName: "Kinshasa Shopping Pro", name: "Groupe Électrogène Silencieux 5kVA", price: 650, phone: "+243810000001", city: "Kinshasa", cat: "Équipement", desc: "Groupe électrogène économique et robuste, faible consommation de carburant, idéal pour commerces et résidences.", image: "https://images.unsplash.com/photo-1581092160607-ee22621dd758?w=500&auto=format&fit=crop&q=60" },
+      { id: 2, shopId: 2, shopName: "Lubumbashi Mode Wax", name: "Lot de Pagnes Wax Authentiques (6 yards)", price: 45, phone: "+243990000002", city: "Lubumbashi", cat: "Mode", desc: "Véritable Wax africain 100% coton de qualité supérieure, couleurs éclatantes et durables.", image: "https://images.unsplash.com/photo-1528459801416-a9e53bbf4e17?w=500&auto=format&fit=crop&q=60" }
+    ];
+
+    let products = safeGet('mk_products', defaultProducts);
+    if (!Array.isArray(products) || products.length === 0) { products = defaultProducts; safeSet('mk_products', products); }
+
+    let shops = safeGet('mk_shops', [
+      { id: 1, name: "Kinshasa Shopping Pro", owner: "Albert B.", phone: "+243810000001", city: "Kinshasa", status: "ACTIVE", fee: 1.00, salesCount: 14 },
+      { id: 2, name: "Lubumbashi Mode Wax", owner: "Sarah M.", phone: "+243990000002", city: "Lubumbashi", status: "ACTIVE", fee: 1.00, salesCount: 8 }
+    ]);
+
+    let myShop = safeGet('mk_my_shop', null);
+
+    function showTab(tabName) {
+      ['market', 'seller', 'profile', 'cart', 'admin-secret', 'shop-detail'].forEach(v => {
+        const el = document.getElementById('view-' + v);
+        if (el) el.style.display = 'none';
+      });
+      ['market', 'seller', 'profile'].forEach(b => {
+        const btn = document.getElementById('tab-' + b);
+        if (btn) btn.className = 'btn btn-gray';
+      });
+
+      if (tabName === 'market') {
+        document.getElementById('view-market').style.display = 'block';
+        document.getElementById('tab-market').className = 'btn btn-green';
+        renderProducts();
+      } else if (tabName === 'seller') {
+        document.getElementById('view-seller').style.display = 'block';
+        document.getElementById('tab-seller').className = 'btn btn-yellow';
+        updateSellerDisplay();
+      } else if (tabName === 'profile') {
+        document.getElementById('view-profile').style.display = 'block';
+        document.getElementById('tab-profile').className = 'btn btn-yellow';
+        renderProfile();
+      } else if (tabName === 'cart') {
+        document.getElementById('view-cart').style.display = 'block';
+        renderCart();
+      } else if (tabName === 'admin-secret') {
+        document.getElementById('view-admin-secret').style.display = 'block';
+      }
+      window.scrollTo(0, 0);
+    }
+
+    function setCurrency(c) {
+      currentCurrency = c;
+      document.getElementById('btn-usd').style.background = c === 'USD' ? '#ffc72c' : 'transparent';
+      document.getElementById('btn-usd').style.color = c === 'USD' ? '#111827' : '#ffffff';
+      document.getElementById('btn-cdf').style.background = c === 'CDF' ? '#ffc72c' : 'transparent';
+      document.getElementById('btn-cdf').style.color = c === 'CDF' ? '#111827' : '#ffffff';
+      renderProducts();
+    }
+
+    function changeLanguage(langKey) {
+      const l = dict[langKey];
+      if (l) {
+        document.getElementById('txt-motto').innerText = l.motto;
+        document.getElementById('txt-welcome-badge').innerText = l.welcomeBadge;
+        document.getElementById('txt-hero-title').innerText = l.heroTitle;
+        document.getElementById('txt-hero-sub').innerText = l.heroSub;
+        document.getElementById('txt-create-btn').innerText = l.createBtn;
+        document.getElementById('search-input').placeholder = l.search;
+        document.getElementById('txt-catalog').innerText = l.catalog;
+        document.getElementById('txt-delivery-title').innerText = l.deliveryTitle;
+        document.getElementById('txt-delivery-text').innerText = l.deliveryText;
+      }
+    }
+
+    function renderProducts(list = products) {
+      const grid = document.getElementById('products-grid');
+      if (!grid) return;
+      if (!list || list.length === 0) list = defaultProducts;
+
+      grid.innerHTML = list.map(p => {
+        const itemPrice = Number(p.price) || 0;
+        const displayPrice = currentCurrency === 'USD' ? '$' + itemPrice.toFixed(2) : (itemPrice * rate).toLocaleString() + ' FC';
+        return `
+          <div class="product-card" onclick="openProductDetail(${p.id})">
+            <img src="${p.image}" class="product-img" alt="${p.name}">
+            <div class="product-info">
+              <div>
+                <span style="font-size: 9px; font-weight: 800; color: #008751; text-transform: uppercase;">${p.cat}</span>
+                <h4 style="font-size: 13px; font-weight: 700; margin-top: 2px; color: #111827;">${p.name}</h4>
+                <p style="font-size: 11px; color: #4b5563; margin-top: 3px;">Boutique : <u class="shop-underline">${p.shopName}</u></p>
+              </div>
+              <div style="margin-top: 8px; padding-top: 6px; border-top: 1px solid #f3f4f6; display: flex; justify-content: space-between; align-items: center;">
+                <span style="font-size: 14px; font-weight: 900; color: #008751;">${displayPrice}</span>
+                <span class="btn btn-green" style="font-size: 10px; padding: 4px 8px;">Voir boutique →</span>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function openProductDetail(id) {
+      const p = products.find(x => x.id === id);
+      if (!p) return;
+      const itemPrice = Number(p.price) || 0;
+      const displayPrice = currentCurrency === 'USD' ? '$' + itemPrice.toFixed(2) : (itemPrice * rate).toLocaleString() + ' FC';
+      const cleanPhone = (p.phone || '').replace(/[^0-9]/g, '');
+
+      document.getElementById('detail-product-card').innerHTML = `
+        <img src="${p.image}" style="width: 100%; height: 220px; object-fit: cover; border-radius: 8px; margin-bottom: 12px;">
+        <span style="background: #dcfce7; color: #15803d; font-size: 10px; font-weight: 800; padding: 2px 6px; border-radius: 4px; text-transform: uppercase;">${p.cat}</span>
+        <h2 style="font-size: 17px; font-weight: 900; margin-top: 4px; color: #111827;">${p.name}</h2>
+        <div style="font-size: 20px; font-weight: 900; color: #008751; margin: 6px 0;">${displayPrice}</div>
+        
+        <div style="background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 8px; padding: 12px; margin: 12px 0;">
+          <span style="font-size: 10px; color: #6b7280; font-weight: 700; text-transform: uppercase;">Boutique Vendeur MK MARKET :</span>
+          <h3 style="font-size: 15px; font-weight: 900; color: #008751; text-decoration: underline;">${p.shopName}</h3>
+          <p style="font-size: 11px; color: #4b5563; margin-top: 2px;">📍 Ville : <strong>${p.city || 'Kinshasa'}</strong></p>
+          <p style="font-size: 11px; color: #4b5563;">📞 Contact : <strong>${p.phone}</strong></p>
+          <p style="font-size: 11px; color: #374151; margin-top: 6px; line-height: 1.4;">${p.desc}</p>
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 10px;">
+          <a href="https://wa.me/${cleanPhone}?text=Bonjour,%20je%20suis%20intéressé%20par%20votre%20produit%20${encodeURIComponent(p.name)}%20sur%20MK%20MARKET." target="_blank" class="btn" style="background: #16a34a; color: white; padding: 11px; font-size: 13px;">
+            💬 Contacter le vendeur sur WhatsApp
+          </a>
+          <a href="tel:${p.phone}" class="btn btn-gray" style="padding: 10px; font-size: 13px;">
+            📞 Appeler directement le vendeur
+          </a>
+          <button onclick="addToMyCart(${p.id})" class="btn btn-yellow" style="padding: 10px; font-size: 13px; margin-top: 4px;">
+            🛒 Ajouter au Panier
+          </button>
+        </div>
+      `;
+
+      ['market', 'seller', 'profile', 'cart', 'admin-secret'].forEach(t => {
+        const el = document.getElementById('view-' + t);
+        if (el) el.style.display = 'none';
+      });
+      document.getElementById('view-shop-detail').style.display = 'block';
+      window.scrollTo(0, 0);
+    }
+
+    function addToMyCart(id) {
+      const p = products.find(x => x.id === id);
+      if (p) {
+        cart.push(p);
+        document.getElementById('cart-count-badge').innerText = cart.length;
+        alert("✅ Produit ajouté à votre panier !");
+      }
+    }
+
+    function updateSellerDisplay() {
+      const inviteBox = document.getElementById('seller-step-invite');
+      const formBox = document.getElementById('seller-step-form');
+      const dashBox = document.getElementById('seller-step-dashboard');
+
+      if (!myShop) {
+        inviteBox.style.display = 'block';
+        formBox.style.display = 'none';
+        dashBox.style.display = 'none';
+      } else {
+        inviteBox.style.display = 'none';
+        formBox.style.display = 'none';
+        dashBox.style.display = 'block';
+        document.getElementById('dash-shop-name').innerText = myShop.name;
+        document.getElementById('dash-shop-info').innerText = 'Gérant : ' + myShop.owner + ' • ' + myShop.city + ' (📞 ' + myShop.phone + ')';
+        renderSellerMyProducts();
+      }
+    }
+
+    function openShopRegistrationForm() {
+      document.getElementById('seller-step-invite').style.display = 'none';
+      document.getElementById('seller-step-form').style.display = 'block';
+    }
+
+    function handleCreateShopNow(e) {
+      e.preventDefault();
+      const name = document.getElementById('input-shop-name').value;
+      const owner = document.getElementById('input-shop-owner').value;
+      const city = document.getElementById('input-shop-city').value;
+      const phone = document.getElementById('input-shop-phone').value;
+
+      myShop = { id: Date.now(), name: name, owner: owner, city: city, phone: phone, status: "ACTIVE", fee: 1.00, salesCount: 0 };
+      shops.unshift(myShop);
+      safeSet('mk_my_shop', myShop);
+      safeSet('mk_shops', shops);
+
+      alert("🎉 Félicitations ! Votre boutique « " + name + " » est créée avec succès !");
+      updateSellerDisplay();
+    }
+
+    function handleEditShopInfo() {
+      const newName = prompt("Nouveau nom de votre boutique :", myShop.name);
+      if (newName && newName.trim() !== '') {
+        myShop.name = newName.trim();
+        safeSet('mk_my_shop', myShop);
+        updateSellerDisplay();
+        renderProducts();
+        alert("✅ Nom de boutique mis à jour !");
+      }
+    }
+
+    function renderSellerMyProducts() {
+      const container = document.getElementById('seller-my-products-list');
+      const myProds = products.filter(p => p.shopId === myShop.id);
+
+      if (myProds.length === 0) {
+        container.innerHTML = '<p style="font-size:11px; color:#6b7280; text-align:center; padding:12px;">Vous n\'avez pas encore ajouté de produit dans votre boutique.</p>';
+        return;
+      }
+
+      container.innerHTML = myProds.map(p => `
+        <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px; background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 8px; font-size: 12px;">
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <img src="${p.image}" style="width: 40px; height: 40px; object-fit: cover; border-radius: 4px;">
+            <div>
+              <strong>${p.name}</strong>
+              <span style="display: block; color: #008751; font-weight: 800;">$${Number(p.price).toFixed(2)}</span>
+            </div>
+          </div>
+          <div style="display: flex; gap: 6px;">
+            <button onclick="editProdPrice(${p.id})" class="btn btn-gray" style="font-size: 10px; padding: 4px 8px;">Modifier prix</button>
+            <button onclick="deleteProd(${p.id})" class="btn btn-admin" style="font-size: 10px; padding: 4px 8px;">Supprimer</button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function editProdPrice(id) {
+      const p = products.find(x => x.id === id);
+      if (!p) return;
+      const np = prompt("Nouveau prix en Dollar ($) pour " + p.name + " :", p.price);
+      if (np && !isNaN(np)) {
+        p.price = parseFloat(np);
+        safeSet('mk_products', products);
+        renderSellerMyProducts();
+        renderProducts();
+        alert("✅ Prix modifié !");
+      }
+    }
+
+    function deleteProd(id) {
+      if (confirm("Voulez-vous retirer ce produit de votre boutique ?")) {
+        products = products.filter(x => x.id !== id);
+        safeSet('mk_products', products);
+        renderSellerMyProducts();
+        renderProducts();
+      }
+    }
+
+    function handleSellerAddProductDirect(e) {
+      e.preventDefault();
+      const title = document.getElementById('prod-add-title').value;
+      const price = parseFloat(document.getElementById('prod-add-price').value);
+      const cat = document.getElementById('prod-add-category').value;
+      const image = tempImage || "https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f?w=500&auto=format&fit=crop&q=60";
+
+      const newP = {
+        id: Date.now(),
+        shopId: myShop.id,
+        shopName: myShop.name,
+        name: title,
+        price: price,
+        phone: myShop.phone,
+        city: myShop.city,
+        cat: cat,
+        desc: "Produit garanti vendu par la boutique " + myShop.name + ".",
+        image: image
+      };
+
+      products.unshift(newP);
+      safeSet('mk_products', products);
+
+      alert("🎉 Produit mis en vente dans votre boutique et affiché sur la Marketplace !");
+      tempImage = null;
+      document.getElementById('prod-add-title').value = '';
+      document.getElementById('prod-add-price').value = '';
+      renderSellerMyProducts();
+      renderProducts();
+    }
+
+    function uploadProductPhoto(e) {
+      const f = e.target.files[0];
+      if (f) {
+        const r = new FileReader();
+        r.onload = function(evt) { tempImage = evt.target.result; };
+        r.readAsDataURL(f);
+      }
+    }
+
+    function renderProfile() {
+      const box = document.getElementById('profile-content-box');
+      if (!myShop) {
+        box.innerHTML = `
+          <div class="card" style="text-align: center; padding: 20px;">
+            <span style="font-size: 28px;">👤</span>
+            <h3 style="font-size: 14px; margin-top: 4px;">Aucune boutique liée à ce profil</h3>
+            <p style="font-size: 11px; color: #6b7280; margin: 4px 0 12px;">Créez votre boutique pour accéder à vos statistiques et gérer vos ventes.</p>
+            <button onclick="showTab('seller')" class="btn btn-yellow">Créer ma boutique</button>
+          </div>
+        `;
+      } else {
+        const myProducts = products.filter(p => p.shopId === myShop.id);
+        box.innerHTML = `
+          <div class="card" style="border: 2px solid #ffc72c; background: #fffdf5;">
+            <span style="font-size: 9px; font-weight: 800; background: #ffc72c; color: #000; padding: 2px 6px; border-radius: 4px;">Profil Vendeur</span>
+            <h2 style="font-size: 16px; font-weight: 900; margin-top: 4px;">${myShop.owner}</h2>
+            <p style="font-size: 11px; color: #4b5563;">Boutique : <strong>${myShop.name}</strong> • ${myShop.city}</p>
+          </div>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+            <div class="card" style="margin: 0; background: #ecfdf5; padding: 10px;">
+              <span style="font-size: 10px; color: #065f46; font-weight: 700;">Articles en vente</span>
+              <strong style="font-size: 18px; display: block; color: #008751;">${myProducts.length}</strong>
+            </div>
+            <div class="card" style="margin: 0; background: #eff6ff; padding: 10px;">
+              <span style="font-size: 10px; color: #1e40af; font-weight: 700;">Ventes réalisées</span>
+              <strong style="font-size: 18px; display: block; color: #2563eb;">${myShop.salesCount || 0}</strong>
+            </div>
+          </div>
+        `;
+      }
+    }
+
+    function renderCart() {
+      const box = document.getElementById('cart-items-list');
+      if (cart.length === 0) {
+        box.innerHTML = '<p style="font-size: 12px; color: #6b7280; text-align: center; padding: 16px;">Votre panier est vide.</p>';
+      } else {
+        box.innerHTML = cart.map(item => `
+          <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid #f3f4f6;">
+            <div>
+              <strong style="font-size: 12px;">${item.name}</strong>
+              <span style="display: block; font-size
