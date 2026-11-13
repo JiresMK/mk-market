@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>MK MARKET - Tout pour le développement de l'Afrique</title>
   <meta name="theme-color" content="#008751">
-  
+
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, sans-serif; }
     body { background-color: #f4f6f8; color: #111827; min-height: 100vh; display: flex; flex-direction: column; }
@@ -169,8 +169,7 @@
         <div class="card">
           <h3 style="font-size: 14px; font-weight: 800; margin-bottom: 2px;">Ajouter un nouveau produit</h3>
           <p style="font-size: 11px; color: #6b7280; margin-bottom: 12px;">Ce produit sera exposé sur la Marketplace avec le nom de votre boutique souligné.</p>
-
-          <form onsubmit="handleSellerAddProductDirect(event)">
+                    <form onsubmit="handleSellerAddProductDirect(event)">
             <div class="form-group"><label>Nom du produit *</label><input id="prod-add-title" type="text" required placeholder="Ex: Sac de Riz 25kg" class="form-control"></div>
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
               <div class="form-group"><label>Prix en USD ($) *</label><input id="prod-add-price" type="number" step="0.01" required placeholder="Ex: 40" class="form-control"></div>
@@ -338,7 +337,7 @@
 
     function changeLanguage(langKey) {
       const l = dict[langKey];
-      if (l) {
+            if (l) {
         document.getElementById('txt-motto').innerText = l.motto;
         document.getElementById('txt-welcome-badge').innerText = l.welcomeBadge;
         document.getElementById('txt-hero-title').innerText = l.heroTitle;
@@ -390,7 +389,7 @@
         <span style="background: #dcfce7; color: #15803d; font-size: 10px; font-weight: 800; padding: 2px 6px; border-radius: 4px; text-transform: uppercase;">${p.cat}</span>
         <h2 style="font-size: 17px; font-weight: 900; margin-top: 4px; color: #111827;">${p.name}</h2>
         <div style="font-size: 20px; font-weight: 900; color: #008751; margin: 6px 0;">${displayPrice}</div>
-        
+
         <div style="background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 8px; padding: 12px; margin: 12px 0;">
           <span style="font-size: 10px; color: #6b7280; font-weight: 700; text-transform: uppercase;">Boutique Vendeur MK MARKET :</span>
           <h3 style="font-size: 15px; font-weight: 900; color: #008751; text-decoration: underline;">${p.shopName}</h3>
@@ -505,7 +504,7 @@
         safeSet('mk_products', products);
         renderSellerMyProducts();
         renderProducts();
-        alert("✅ Prix modifié !");
+                alert("✅ Prix modifié !");
       }
     }
 
